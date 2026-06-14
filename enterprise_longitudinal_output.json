@@ -1,0 +1,23 @@
+[
+    {
+        "Patient_ID":"P-001",
+        "Visit_Month":0,
+        "Progression_Velocity":0.0,
+        "Pipeline_Prediction":0,
+        "Model_Probability_Rapid":0.4334707889
+    },
+    {
+        "Patient_ID":"P-002",
+        "Visit_Month":0,
+        "Progression_Velocity":0.0,
+        "Pipeline_Prediction":1,
+        "Model_Probability_Rapid":0.6724076188
+    },
+    {
+        "Patient_ID":"P-003",
+        "Visit_Month":0,
+        "Progression_Velocity":0.0,
+        "Pipeline_Prediction":0,
+        "Model_Probability_Rapid":0.2219216034
+    }
+]
