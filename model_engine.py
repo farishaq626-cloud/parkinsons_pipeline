@@ -35,7 +35,7 @@ print(f"✂️ Data split complete: {len(X_train)} training samples, {len(X_test
 
 # 3. Model Training
 print("🏋️‍♂️ Training Logistic Regression Classifier...")
-model = LogisticRegression(random_state=42)
+model = LogisticRegression(class_weight='balanced' ,random_state=42)
 model.fit(X_train, y_train)
 
 
