@@ -1,0 +1,27 @@
+[
+    {
+        "Patient_ID":"P-001",
+        "Age_At_Onset":-0.407632531,
+        "UPDRS_Motor_Score":-0.8529872951
+    },
+    {
+        "Patient_ID":"P-002",
+        "Age_At_Onset":0.8540872078,
+        "UPDRS_Motor_Score":0.9485806989
+    },
+    {
+        "Patient_ID":"P-003",
+        "Age_At_Onset":-1.6693522698,
+        "UPDRS_Motor_Score":-1.2206542327
+    },
+    {
+        "Patient_ID":"P-004",
+        "Age_At_Onset":1.1452533014,
+        "UPDRS_Motor_Score":1.3530143302
+    },
+    {
+        "Patient_ID":"P-005",
+        "Age_At_Onset":0.0776442916,
+        "UPDRS_Motor_Score":-0.2279535013
+    }
+]

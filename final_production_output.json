@@ -1,0 +1,26 @@
+[
+    {
+        "Patient_ID":"P-001",
+        "Age_At_Onset":0.0,
+        "UPDRS_Part_III_Score":14.0,
+        "UPDRS_Motor_Score":-0.5042447703,
+        "Dopaminergic_Med":"levodopa",
+        "Clinic_Code":"LON-01"
+    },
+    {
+        "Patient_ID":"P-002",
+        "Age_At_Onset":1.2247448714,
+        "UPDRS_Part_III_Score":38.5,
+        "UPDRS_Motor_Score":1.3963701331,
+        "Dopaminergic_Med":"none",
+        "Clinic_Code":"MAN-02"
+    },
+    {
+        "Patient_ID":"P-003",
+        "Age_At_Onset":-1.2247448714,
+        "UPDRS_Part_III_Score":9.0,
+        "UPDRS_Motor_Score":-0.8921253628,
+        "Dopaminergic_Med":"agonist",
+        "Clinic_Code":"EDN-04"
+    }
+]

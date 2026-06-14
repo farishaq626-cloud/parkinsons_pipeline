@@ -1,0 +1,30 @@
+[
+    {
+        "Patient_ID":"P-001",
+        "Age_At_Onset":62.0,
+        "UPDRS_Part_III_Score":24.5,
+        "Dopaminergic_Med":"levodopa",
+        "Last_Visit_Date":"2026-01-15"
+    },
+    {
+        "Patient_ID":"P-002",
+        "Age_At_Onset":62.0,
+        "UPDRS_Part_III_Score":31.0,
+        "Dopaminergic_Med":"none",
+        "Last_Visit_Date":"12\/05\/2025"
+    },
+    {
+        "Patient_ID":"P-003",
+        "Age_At_Onset":58.0,
+        "UPDRS_Part_III_Score":18.5,
+        "Dopaminergic_Med":"levodopa",
+        "Last_Visit_Date":"2026-03-22"
+    },
+    {
+        "Patient_ID":"P-004",
+        "Age_At_Onset":71.0,
+        "UPDRS_Part_III_Score":24.5,
+        "Dopaminergic_Med":"agonist",
+        "Last_Visit_Date":"02-11-2026"
+    }
+]
