@@ -7,9 +7,9 @@ from feature_engine import scale_clinical_features
 from validation_engine import validate_clinical_data
 from sklearn.linear_model import LogisticRegression
 
-print("🚀 ======================================================= 🚀")
-print("⚡   PARKINSON'S END-TO-END LONGITUDINAL PRODUCTION ENGINE   ⚡")
-print("🚀 =======================================================\n")
+print(" ======================================================= ")
+print("   PARKINSON'S END-TO-END LONGITUDINAL PRODUCTION ENGINE   ")
+print(" =======================================================\n")
 
 # 1. Ingestion
 raw_longitudinal_cohort = {
