@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 import json
 
-print("🤖 Parkinson's Pipeline: Initializing Feature Scaling & Preprocessing Layer...\n")
+print(" Parkinson's Pipeline: Initializing Feature Scaling & Preprocessing Layer...\n")
 
 # 1. Simulating a Clean Cohort Dataset
 # Age and UPDRS motor scores have completely different scales and ranges.
@@ -14,7 +14,7 @@ cohort_data = {
 }
 
 df_cohort = pd.DataFrame(cohort_data)
-print("⚠️ Raw Feature Profiles (Before Scaling):")
+print(" Raw Feature Profiles (Before Scaling):")
 print(df_cohort.drop(columns=['Patient_ID']))
 print("-"*50 + "\n")
 
@@ -34,7 +34,7 @@ def scale_clinical_features(df):
     df_scaled = df.copy()
     df_scaled[features_to_scale] = scaled_matrix
     
-    print("📈 Feature Scaling Complete: Z-score Normalization applied successfully.")
+    print(" Feature Scaling Complete: Z-score Normalization applied successfully.")
     return df_scaled
 
 # Run the preprocessing engine
@@ -42,9 +42,9 @@ df_processed_features = scale_clinical_features(df_cohort)
 
 
 # 3. Display the Normalised Array Output
-print("\n🎯 Standardised Machine-Learning Ready Matrix:")
+print("\n Standardised Machine-Learning Ready Matrix:")
 print(df_processed_features)
 
 # Save the final matrix out to your structural JSON layer
 df_processed_features.to_json('ml_ready_features.json', orient='records', indent=4)
-print("\n💾 Success: Machine learning features exported to 'ml_ready_features.json'.")
+print("\n Success: Machine learning features exported to 'ml_ready_features.json'.")

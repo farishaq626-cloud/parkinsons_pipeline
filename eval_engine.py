@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, roc_auc_score, roc_curve
 
-print("📊 Parkinson's Pipeline: Initializing Advanced Visual Diagnostics Engine...\n")
+print(" Parkinson's Pipeline: Initializing Advanced Visual Diagnostics Engine...\n")
 
 def generate_pipeline_diagnostics(y_true, y_pred, y_probs):
     """
@@ -15,7 +15,7 @@ def generate_pipeline_diagnostics(y_true, y_pred, y_probs):
     cm = confusion_matrix(y_true, y_pred)
     tn, fp, fn, tp = cm.ravel()
     
-    print("📋 True Performance Breakdown:")
+    print(" True Performance Breakdown:")
     print(f"   • True Negatives  (Correctly identified Stable): {tn}")
     print(f"   • False Positives (Stable misclassified as Rapid): {fp}")
     print(f"   • False Negatives (Rapid missed by model): {fn}")
@@ -23,7 +23,7 @@ def generate_pipeline_diagnostics(y_true, y_pred, y_probs):
     
     # 2. Compute the ROC-AUC Score
     auc_score = roc_auc_score(y_true, y_probs)
-    print(f"✨ Computed Pipeline ROC-AUC Score: {auc_score:.4f}")
+    print(f" Computed Pipeline ROC-AUC Score: {auc_score:.4f}")
     
     # 3. Plotting the ROC Curve
     fpr, tpr, _ = roc_curve(y_true, y_probs)
@@ -45,7 +45,7 @@ def generate_pipeline_diagnostics(y_true, y_pred, y_probs):
     plt.savefig(output_filename, dpi=300)
     plt.close()
     
-    print(f"💾 Production Asset Saved successfully: '{output_filename}' generated in your workspace.")
+    print(f" Production Asset Saved successfully: '{output_filename}' generated in your workspace.")
 
 if __name__ == "__main__":
     # Test run using values from your main pipeline output

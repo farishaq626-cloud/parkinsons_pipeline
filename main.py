@@ -27,10 +27,10 @@ df_raw = pd.DataFrame(raw_longitudinal_cohort)
 # --- THE GATEKEEPER ---
 is_valid, message = validate_clinical_data(df_raw)
 if not is_valid:
-    print(f"🛑 PIPELINE HALTED: {message}")
+    print(f" PIPELINE HALTED: {message}")
     exit()
 else:
-    print(f"✅ Data validation passed. Proceeding...")
+    print(f" Data validation passed. Proceeding...")
 
 # 2. Pipeline Routing
 df_normalized = clean_and_structure_pipeline(df_raw)

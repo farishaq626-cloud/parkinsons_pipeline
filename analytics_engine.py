@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-print("📊 Parkinson's Pipeline: Initializing Longitudinal Analytics Engine...\n")
+print(" Parkinson's Pipeline: Initializing Longitudinal Analytics Engine...\n")
 
 # 1. Simulating a Multi-Visit Clinical Trial Dataset (e.g., PPMI style)
 # Patients are tracked over multiple years. Notice some missing values (NaN) 
@@ -14,7 +14,7 @@ longitudinal_data = {
 }
 
 df_long = pd.DataFrame(longitudinal_data)
-print("📥 Raw Longitudinal Cohort Records Ingested:")
+print(" Raw Longitudinal Cohort Records Ingested:")
 print(df_long)
 print("-" * 60 + "\n")
 
@@ -30,7 +30,7 @@ def impute_longitudinal_data(df):
     # Group by patient so we don't accidentally fill data using a different patient's scores
     df_imputed['UPDRS_Total'] = df_imputed.groupby('Patient_ID')['UPDRS_Total'].ffill()
     
-    print("🔧 Attrition Mitigated: Forward-fill imputation applied to missing visit metrics.")
+    print(" Attrition Mitigated: Forward-fill imputation applied to missing visit metrics.")
     return df_imputed
 
 
@@ -58,12 +58,12 @@ def calculate_progression_velocity(df):
         0.0  # Velocity is naturally zero at the baseline start point
     )
     
-    print("📈 Feature Vector Engineered: Calculated annual Progression Velocity slopes.")
+    print(" Feature Vector Engineered: Calculated annual Progression Velocity slopes.")
     return df_velocity
 
 # Execute the engine steps locally for validation
 df_cleaned_long = impute_longitudinal_data(df_long)
 df_analyzed = calculate_progression_velocity(df_cleaned_long)
 
-print("\n🎯 Advanced Longitudinal Analysis Output Matrix:")
+print("\n Advanced Longitudinal Analysis Output Matrix:")
 print(df_analyzed[['Patient_ID', 'Visit_Month', 'UPDRS_Total', 'Progression_Velocity', 'LEDD_Dose']])

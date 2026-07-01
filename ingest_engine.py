@@ -3,7 +3,7 @@ import numpy as np
 import json
 from datetime import datetime
 
-print("🔄 Parkinson's Progression Pipeline: Initializing Ingestion Layer...\n")
+print(" Parkinson's Progression Pipeline: Initializing Ingestion Layer...\n")
 
 # 1. Simulating Unstructured, Messy Clinical Input Data
 # In a real trial, this would be a messy CSV or Excel export with missing values and inconsistent formatting.
@@ -17,7 +17,7 @@ messy_clinical_data = {
 
 # Convert raw input dictionary into a Pandas Dataframe
 df_raw = pd.DataFrame(messy_clinical_data)
-print("⚠️ Raw Input Data Snapshot:")
+print(" Raw Input Data Snapshot:")
 print(df_raw, "\n" + "-"*50 + "\n")
 
 
@@ -43,11 +43,11 @@ df_cleaned = clean_and_structure_pipeline(df_raw)
 # Conglomerates buy assets that integrate seamlessly into cloud databases via JSON payloads.
 structured_json_payload = df_cleaned.to_json(orient='records', indent=4)
 
-print("🎯 Cleaned & Standardized Enterprise JSON Output:")
+print(" Cleaned & Standardized Enterprise JSON Output:")
 print(structured_json_payload)
 
 # Save the structured asset locally
 with open('structured_patient_data.json', 'w') as f:
     f.write(structured_json_payload)
 
-print("\n💾 Success: Pipeline run complete. 'structured_patient_data.json' saved to workspace.")
+print("\n Success: Pipeline run complete. 'structured_patient_data.json' saved to workspace.")

@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from validation_engine import validate_clinical_data
 
-print("🧪 Running Pipeline Stress Test: Ensuring Robustness against clinical data errors...")
+print(" Running Pipeline Stress Test: Ensuring Robustness against clinical data errors...")
 
 def run_stress_test():
     # 1. Create a "Poisoned" Dataset (Simulating real-world entry errors)
@@ -22,10 +22,10 @@ def run_stress_test():
     is_valid, message = validate_clinical_data(df_poisoned)
     
     if not is_valid:
-        print(f"✅ Success: Validation Gatekeeper correctly halted pipeline.")
+        print(f" Success: Validation Gatekeeper correctly halted pipeline.")
         print(f"   Reason captured: {message}")
     else:
-        print(f"❌ Failed: The pipeline accepted bad data!")
+        print(f" Failed: The pipeline accepted bad data!")
 
     # 2. Test empty dataframe
     print("\n[TEST 2] Testing empty dataset detection...")
@@ -33,9 +33,9 @@ def run_stress_test():
     is_valid, message = validate_clinical_data(df_empty)
     
     if not is_valid:
-        print(f"✅ Success: Validation Gatekeeper correctly identified empty input.")
+        print(f" Success: Validation Gatekeeper correctly identified empty input.")
     else:
-        print(f"❌ Failed: The pipeline accepted an empty dataframe!")
+        print(f" Failed: The pipeline accepted an empty dataframe!")
 
 if __name__ == "__main__":
     run_stress_test()
