@@ -61,4 +61,4 @@ df_analytics['Pipeline_Prediction'] = production_model.predict(X)
 final_payload = df_analytics[['Patient_ID', 'Visit_Month', 'Progression_Velocity', 'Pipeline_Prediction', 'Model_Probability_Rapid']]
 print(final_payload)
 final_payload.to_json('enterprise_longitudinal_output.json', orient='records', indent=4)
-print("\n🏁 [SUCCESS] Complete longitudinal pipeline asset execution verified.")
+print("\n [SUCCESS] Complete longitudinal pipeline asset execution verified.")
