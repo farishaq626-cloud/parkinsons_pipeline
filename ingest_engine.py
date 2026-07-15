@@ -1,8 +1,19 @@
 import pandas as pd
 
-def clean_and_structure_pipeline(df):
-    # Ensure numerical types for critical columns
-    df['Age_At_Onset'] = pd.to_numeric(df['Age_At_Onset'], errors='coerce')
-    df['UPDRS_Motor_Score'] = pd.to_numeric(df['UPDRS_Motor_Score'], errors='coerce')
-    # Drop rows with critical missing data
-    return df.dropna(subset=['Age_At_Onset', 'UPDRS_Motor_Score', 'Patient_ID'])
+def get_data():
+    """
+    Downloads the UCI Parkinson's dataset and standardizes it 
+    for the pipeline architecture.
+    """
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/parkinsons/parkinsons.data"
+    df = pd.read_csv(url)
+    
+    # 'name' is a subject ID and has no predictive power
+    # FIX: Remove ', axis=1' from this line
+    if 'name' in df.columns:
+        df = df.drop(columns=['name'])
+    
+    # Standardize 'status' to 'target' so main.py doesn't break
+    df = df.rename(columns={'status': 'target'})
+    
+    return df
