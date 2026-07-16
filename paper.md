@@ -65,7 +65,7 @@ The package is suited to exploratory progression modelling, sensitivity analyses
 
 The authors utilized OpenAI Codex during the development process to support code refactoring, generate unit test scaffolding, and perform static analysis to improve code quality and execution efficiency. The author reviewed, edited, and takes full responsibility for the final content, software design, analysis claims, and citations.
 
-## Data Availability
+# Data Availability
 This study acknowledges the Parkinson’s Progression Markers Initiative (PPMI) parent protocol. For detailed protocol information, please refer to the [PPMI website](https://www.ppmi-info.org).
 
 This analysis used Tier 1 data from PPMI, consisting of clinical and patient-level CSV datasets. These data were downloaded on 2026-07-15 from the PPMI database (www.ppmi-info.org/access-data-specimens/download-data), RRID:SCR_006431.
