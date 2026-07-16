@@ -36,3 +36,12 @@ features.txt
 
 # Historical code excluded from public release
 legacy/
+
+# Generated clinical data and pipeline outputs
+/deduplicated_patient_registry.json
+/enterprise_longitudinal_output.json
+/final_production_output.json
+/ml_ready_features.json
+/model_predictions_output.json
+/report.json
+/structured_patient_data.json
