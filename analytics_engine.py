@@ -36,6 +36,15 @@ class PPMIAnalyticsEngine:
         self.run_id = run_id
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
+    def split_by_patient(self, X, y, groups):
+        """Return deterministic train/test indices with no patient overlap."""
+        splitter = GroupShuffleSplit(
+            n_splits=1,
+            test_size=self.model_config["test_size"],
+            random_state=self.model_config["random_state"],
+        )
+        return next(splitter.split(X, y, groups=groups))
+
     def train_and_evaluate(self, df, feature_columns, target_column, endpoint, group_column="PATNO"):
         required = set(feature_columns) | {target_column, group_column}
         missing = sorted(required.difference(df.columns))
@@ -45,12 +54,7 @@ class PPMIAnalyticsEngine:
         if groups.nunique() < 2:
             raise ValueError("At least two PPMI patients are required for a grouped train/test split.")
 
-        splitter = GroupShuffleSplit(
-            n_splits=1,
-            test_size=self.model_config["test_size"],
-            random_state=self.model_config["random_state"],
-        )
-        train_idx, test_idx = next(splitter.split(X, y, groups=groups))
+        train_idx, test_idx = self.split_by_patient(X, y, groups)
         model = Pipeline(steps=[
             ("imputer", SimpleImputer(strategy="median")),
             ("model", RandomForestRegressor(

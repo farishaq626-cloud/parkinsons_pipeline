@@ -3,9 +3,10 @@ message: "If you use PPMI-Pipeline in your research, please cite this software."
 title: "PPMI-Pipeline"
 type: software
 authors:
-  - family-names: "farishaq626"
-repository-code: "https://github.com/farishaq626/parkinsons_pipeline"
-url: "https://github.com/farishaq626/parkinsons_pipeline"
-version: "2.0.0"
+  - given-names: "Faris"
+    family-names: "Haq"
+repository-code: "https://github.com/farishaq626-cloud/parkinsons_pipeline"
+url: "https://github.com/farishaq626-cloud/parkinsons_pipeline"
+version: "2.1.0"
 date-released: "2026-07-16"
 license: MIT

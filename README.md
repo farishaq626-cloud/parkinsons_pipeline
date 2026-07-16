@@ -19,7 +19,7 @@ The repository is intended for clinical research and method development. It is n
 Python 3.10 or later is recommended.
 
 ```bash
-git clone https://github.com/farishaq626/parkinsons_pipeline.git
+git clone https://github.com/farishaq626-cloud/parkinsons_pipeline.git
 cd parkinsons_pipeline
 python -m venv .venv
 ```
@@ -76,12 +76,12 @@ To test the pipeline without PPMI data, run:
 python tests/generate_dummy_data.py
 ```
 
-This creates `tests/dummy_ppmi.csv` with 50 synthetic patients observed at BL,
-V01, and V02. Update `config.json` to point `data_path` to
-`tests/dummy_ppmi.csv`, then run:
+The repository includes `tests/dummy_ppmi.csv`, containing 50 synthetic
+patients observed at BL, V01, and V02. To run the pipeline with sample data,
+use:
 
 ```bash
-python main.py
+python main.py --config config.example.json
 ```
 
 ## Methodology

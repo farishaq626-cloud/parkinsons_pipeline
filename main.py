@@ -2,6 +2,7 @@
 
 import json
 import os
+from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
 
@@ -91,4 +92,6 @@ def run_pipeline(config_path: str | Path | None = None):
 
 
 if __name__ == "__main__":
-    run_pipeline()
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument("--config", type=Path, help="Path to an experiment JSON configuration file.")
+    run_pipeline(parser.parse_args().config)

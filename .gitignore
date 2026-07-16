@@ -15,6 +15,7 @@ venv/
 # Controlled/raw data and generated test data
 data/
 *.csv
+!tests/dummy_ppmi.csv
 *.xlsx
 *.xls
 

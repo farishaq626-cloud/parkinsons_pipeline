@@ -1,7 +1,6 @@
 """Unit tests for PPMI schema validation and baseline-delta construction."""
 
 import sys
-import tempfile
 import unittest
 from pathlib import Path
 
@@ -15,12 +14,18 @@ from etl import PPMIDataLoader  # noqa: E402
 from feature_engine import PPMIFeatureEngine  # noqa: E402
 
 
-def ppmi_records():
+def ppmi_records() -> pd.DataFrame:
+    """Create a small valid PPMI-like longitudinal dataset for testing."""
     return pd.DataFrame(
         {
             "PATNO": [101, 101, 202, 202],
             "EVENT_ID": ["BL", "V02", "BL", "V02"],
-            "visit_date": ["2020-01-01", "2021-01-01", "2020-02-01", "2021-02-01"],
+            "visit_date": [
+                "2020-01-01",
+                "2021-01-01",
+                "2020-02-01",
+                "2021-02-01",
+            ],
             "moca": [28, 26, 27, 28],
             "updrs3_score": [12, 16, 15, 14],
             "age": [60, 61, 65, 66],
@@ -34,29 +39,34 @@ def ppmi_records():
 
 class TestPPMIPipeline(unittest.TestCase):
     def test_schema_validation_accepts_required_columns(self):
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            path = Path(temporary_directory) / "ppmi.csv"
-            ppmi_records().to_csv(path, index=False)
-            PPMIDataLoader().validate_schema(path)
+        valid_frame = ppmi_records()
+
+        PPMIDataLoader().validate_schema(valid_frame)
 
     def test_schema_validation_reports_missing_endpoint(self):
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            path = Path(temporary_directory) / "invalid_ppmi.csv"
-            ppmi_records().drop(columns="moca").to_csv(path, index=False)
-            with self.assertRaisesRegex(ValueError, "moca"):
-                PPMIDataLoader().validate_schema(path)
+        invalid_frame = ppmi_records().drop(columns="moca")
+
+        with self.assertRaisesRegex(ValueError, "moca"):
+            PPMIDataLoader().validate_schema(invalid_frame)
 
     def test_baseline_delta_uses_only_post_baseline_visits(self):
         frame = ppmi_records()
         frame["visit_date"] = pd.to_datetime(frame["visit_date"])
+
         dataset, features, target = PPMIFeatureEngine().build_endpoint_dataset(
-            frame, "moca", ["age", "SEX", "EDUCYRS", "duration", "upsit"]
+            frame,
+            "moca",
+            ["age", "SEX", "EDUCYRS", "duration", "upsit"],
         )
+
         self.assertEqual(len(dataset), 2)
         self.assertEqual(target, "moca_delta")
         self.assertIn("moca_baseline", features)
         self.assertTrue((dataset["time_from_baseline_days"] > 0).all())
-        self.assertEqual(dict(zip(dataset["PATNO"], dataset[target])), {101: -2, 202: 1})
+        self.assertEqual(
+            dict(zip(dataset["PATNO"], dataset[target])),
+            {101: -2, 202: 1},
+        )
 
 
 if __name__ == "__main__":
