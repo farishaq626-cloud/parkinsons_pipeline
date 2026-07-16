@@ -1,0 +1,13 @@
+{
+  "variable_map": {
+    "OLD_VAR_NAME": "NEW_VAR_NAME",
+    "APPRDX": "COHORT"
+  },
+  "code_map": {
+    "COHORT": {
+      "1": "PD",
+      "2": "Healthy Control",
+      "3": "Prodromal"
+    }
+  }
+}

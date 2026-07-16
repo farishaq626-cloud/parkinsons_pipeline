@@ -1,69 +1,109 @@
+"""Patient-grouped PPMI endpoint modelling and publication diagnostics."""
+
+from dataclasses import dataclass
+from pathlib import Path
+
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
-
-print(" Parkinson's Pipeline: Initializing Longitudinal Analytics Engine...\n")
-
-# 1. Simulating a Multi-Visit Clinical Trial Dataset (e.g., PPMI style)
-# Patients are tracked over multiple years. Notice some missing values (NaN) 
-# which naturally happens when patients miss a clinic appointment.
-longitudinal_data = {
-    'Patient_ID': ['P-001', 'P-001', 'P-001', 'P-002', 'P-002', 'P-003', 'P-003', 'P-003'],
-    'Visit_Month': [0, 12, 24, 0, 24, 0, 12, 24],  # Timeline in months
-    'UPDRS_Total': [15.0, 22.0, 31.0, 28.0, np.nan, 12.0, 14.0, 15.0], # Clinical motor scores
-    'LEDD_Dose':   [300, 400, 600, 450, 450, 0, 0, 150]    # Levodopa Equivalent Daily Dose (mg)
-}
-
-df_long = pd.DataFrame(longitudinal_data)
-print(" Raw Longitudinal Cohort Records Ingested:")
-print(df_long)
-print("-" * 60 + "\n")
+import shap
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.impute import SimpleImputer
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.model_selection import GroupShuffleSplit
+from sklearn.pipeline import Pipeline
 
 
-# 2. Imputation Layer: Handling Clinical Attrition (Forward-Fill)
-def impute_longitudinal_data(df):
-    """
-    In clinical tracking, if a patient misses a visit, we safely forward-fill 
-    their previous known score to ensure the pipeline doesn't break.
-    """
-    df_imputed = df.copy()
-    
-    # Group by patient so we don't accidentally fill data using a different patient's scores
-    df_imputed['UPDRS_Total'] = df_imputed.groupby('Patient_ID')['UPDRS_Total'].ffill()
-    
-    print(" Attrition Mitigated: Forward-fill imputation applied to missing visit metrics.")
-    return df_imputed
+@dataclass(frozen=True)
+class EndpointResult:
+    endpoint: str
+    n_observations: int
+    n_patients: int
+    mae: float
+    rmse: float
+    r2: float
+    residual_plot_path: Path
+    shap_plot_path: Path
+    model: Pipeline
 
 
-# 3. Feature Engineering: Calculating the Progression Velocity Vector
-def calculate_progression_velocity(df):
-    """
-    Computes the exact annual rate of change for each patient's UPDRS score.
-    Velocity = (Current_Score - Baseline_Score) / Time_Delta_In_Years
-    """
-    df_velocity = df.copy()
-    
-    # Identify baseline metrics (Visit_Month == 0) for each patient
-    baseline = df_velocity[df_velocity['Visit_Month'] == 0].set_index('Patient_ID')['UPDRS_Total']
-    
-    # Map the baseline values back to every row corresponding to that patient
-    df_velocity['Baseline_UPDRS'] = df_velocity['Patient_ID'].map(baseline)
-    
-    # Calculate the time delta in years
-    df_velocity['Years_Since_Baseline'] = df_velocity['Visit_Month'] / 12.0
-    
-    # Calculate velocity (avoiding division by zero at baseline visit)
-    df_velocity['Progression_Velocity'] = np.where(
-        df_velocity['Years_Since_Baseline'] > 0,
-        (df_velocity['UPDRS_Total'] - df_velocity['Baseline_UPDRS']) / df_velocity['Years_Since_Baseline'],
-        0.0  # Velocity is naturally zero at the baseline start point
-    )
-    
-    print(" Feature Vector Engineered: Calculated annual Progression Velocity slopes.")
-    return df_velocity
+class PPMIAnalyticsEngine:
+    def __init__(self, model_config: dict, output_dir: str | Path, run_id: str):
+        self.model_config = model_config
+        self.output_dir = Path(output_dir)
+        self.run_id = run_id
+        self.output_dir.mkdir(parents=True, exist_ok=True)
 
-# Execute the engine steps locally for validation
-df_cleaned_long = impute_longitudinal_data(df_long)
-df_analyzed = calculate_progression_velocity(df_cleaned_long)
+    def train_and_evaluate(self, df, feature_columns, target_column, endpoint, group_column="PATNO"):
+        required = set(feature_columns) | {target_column, group_column}
+        missing = sorted(required.difference(df.columns))
+        if missing:
+            raise ValueError(f"PPMI model schema is missing: {', '.join(missing)}")
+        X, y, groups = df[feature_columns], df[target_column], df[group_column]
+        if groups.nunique() < 2:
+            raise ValueError("At least two PPMI patients are required for a grouped train/test split.")
 
-print("\n Advanced Longitudinal Analysis Output Matrix:")
-print(df_analyzed[['Patient_ID', 'Visit_Month', 'UPDRS_Total', 'Progression_Velocity', 'LEDD_Dose']])
+        splitter = GroupShuffleSplit(
+            n_splits=1,
+            test_size=self.model_config["test_size"],
+            random_state=self.model_config["random_state"],
+        )
+        train_idx, test_idx = next(splitter.split(X, y, groups=groups))
+        model = Pipeline(steps=[
+            ("imputer", SimpleImputer(strategy="median")),
+            ("model", RandomForestRegressor(
+                n_estimators=self.model_config["n_estimators"],
+                max_depth=self.model_config["max_depth"],
+                min_samples_leaf=self.model_config["min_samples_leaf"],
+                n_jobs=self.model_config["n_jobs"],
+                random_state=self.model_config["random_state"],
+            )),
+        ])
+        X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
+        y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
+        model.fit(X_train, y_train)
+        predictions = model.predict(X_test)
+        residuals = y_test.to_numpy() - predictions
+
+        residual_path = self._save_residual_plot(residuals, endpoint)
+        shap_path = self._save_shap_summary(model, X_test, feature_columns, endpoint)
+        return EndpointResult(
+            endpoint=endpoint,
+            n_observations=len(df),
+            n_patients=groups.nunique(),
+            mae=mean_absolute_error(y_test, predictions),
+            rmse=mean_squared_error(y_test, predictions) ** 0.5,
+            r2=r2_score(y_test, predictions),
+            residual_plot_path=residual_path,
+            shap_plot_path=shap_path,
+            model=model,
+        )
+
+    def _save_residual_plot(self, residuals, endpoint: str) -> Path:
+        path = self.output_dir / f"{self.run_id}_{endpoint}_residual_distribution.png"
+        figure, axis = plt.subplots(figsize=(7, 5))
+        axis.hist(residuals, bins=30, color="#4C78A8", edgecolor="white")
+        axis.axvline(0, color="#D62728", linestyle="--", linewidth=1.5, label="Zero error")
+        axis.set(title=f"{endpoint}: residual distribution", xlabel="Observed delta − predicted delta", ylabel="Count")
+        axis.legend()
+        figure.tight_layout()
+        figure.savefig(path, dpi=300)
+        plt.close(figure)
+        return path
+
+    def _save_shap_summary(self, model: Pipeline, X_test: pd.DataFrame, feature_columns, endpoint: str) -> Path:
+        path = self.output_dir / f"{self.run_id}_{endpoint}_shap_summary.png"
+        sample_size = min(len(X_test), self.model_config["shap_sample_size"])
+        sample = X_test.sample(n=sample_size, random_state=self.model_config["random_state"])
+        imputed = model.named_steps["imputer"].transform(sample)
+        shap_data = pd.DataFrame(imputed, columns=feature_columns, index=sample.index)
+        explainer = shap.TreeExplainer(model.named_steps["model"])
+        shap_values = explainer.shap_values(shap_data)
+        shap.summary_plot(shap_values, shap_data, show=False, plot_size=(8, 5))
+        plt.title(f"{endpoint}: SHAP feature importance")
+        plt.tight_layout()
+        plt.savefig(path, dpi=300, bbox_inches="tight")
+        plt.close()
+        return path

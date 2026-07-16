@@ -1,34 +1,109 @@
-# Clinical Parkinson's Data Pipeline
+# PPMI-Pipeline
 
-A production-grade, modular framework for processing longitudinal Parkinson's disease cohort data. This repository implements a robust, validation-first methodology to ensure data integrity, clinical accuracy, and reproducibility in predictive modelling.
+PPMI-Pipeline is a reproducible Python workflow for modelling longitudinal clinical progression in the Parkinson's Progression Markers Initiative (PPMI) curated data export. It models post-baseline change in the Montreal Cognitive Assessment (MoCA) and MDS-UPDRS Part III motor score, with patient-level data splitting, clinical error metrics, residual diagnostics, and SHAP-based feature attribution.
 
-## Project Overview
+## Statement of need
 
-This pipeline addresses the critical challenge of processing inconsistent clinical datasets. Built with a defensive programming philosophy, the system acts as a gatekeeper, ensuring that data is thoroughly validated for schema compliance, type consistency, and logical ranges before entering the model training phase. It is designed to serve as a reliable foundation for clinical diagnostics and precision psychiatry research.
+Longitudinal Parkinson's disease studies require analysis that respects the fact that multiple visits belong to the same participant. Common row-level splits can place observations from one person in both training and test sets, leading to overly optimistic performance estimates. PPMI-Pipeline provides a compact, inspectable implementation that:
 
-## System Architecture
+* identifies a configurable BL/V01 baseline for each participant;
+* constructs MoCA and UPDRS-III change-from-baseline endpoints;
+* uses `PATNO`-grouped train/test splitting to prevent participant leakage;
+* performs median imputation inside the training pipeline; and
+* records reproducible metrics and interpretability artifacts for each run.
 
-The pipeline is composed of distinct, decoupled engines:
+The repository is intended for clinical research and method development. It is not a diagnostic device and must not be used as a substitute for clinical judgment.
 
-* **Ingestion Layer**: Handles data normalization and standardizes longitudinal cohort variables.
-* **Validation Engine**: A defensive programming layer that systematically catches missing records, out-of-range clinical values, and schema mismatches.
-* **Feature Engineering**: Implements Z-score normalization and feature transformation to ensure statistically balanced model inputs.
-* **Evaluation Engine**: Generates comprehensive clinical-grade diagnostics, including confusion matrices, sensitivity/specificity analysis, and AUC-ROC reporting.
-* **Stress Testing Suite**: A dedicated module that simulates real-world corrupted data entry to verify pipeline resilience.
-* **API Service Layer**: Provides a RESTful endpoint via FastAPI for real-time model serving and clinical risk assessment.
-* **Biological Network Analysis**: Maps identified predictive biomarkers to established protein-protein interaction (PPI) pathways, providing molecular interpretability to clinical predictions.
+## Installation
 
-## Technical Highlights
-
-* **Defensive Programming**: Utilizes explicit data type coercion to maintain system stability when encountering non-standard data types.
-* **Robustness Verification**: The integrated stress-test suite proves system resilience, ensuring the pipeline maintains integrity even when fed flawed data.
-* **Reproducibility**: The modular design allows for seamless integration into broader clinical workflows and ensures all processing steps are documented and repeatable.
-* **Production-Ready API**: Features an automated documentation suite for model deployment and integration into external software services.
-
-## Quick Start
-
-### 1. Environment Setup
-Ensure you have the required dependencies installed:
+Python 3.10 or later is recommended.
 
 ```bash
-pip install pandas networkx matplotlib fastapi uvicorn
+git clone https://github.com/farishaq626/parkinsons_pipeline.git
+cd parkinsons_pipeline
+python -m venv .venv
+```
+
+Activate the virtual environment, then install dependencies:
+
+```bash
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+
+# macOS/Linux
+source .venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+Download the appropriate PPMI curated export through the PPMI data portal and place it locally. PPMI data are governed by their own access and data-use agreement and are not redistributed with this repository.
+
+## Quick start
+
+1. Copy `config.json` and set `data_path` to the local PPMI `.xlsx`, `.xls`, or `.csv` export. The default configuration expects the worksheet named `20260511`.
+2. Confirm the export contains `PATNO`, `EVENT_ID`, `visit_date`, `moca`, and `updrs3_score`.
+3. Run the primary entry point:
+
+```bash
+python main.py
+```
+
+Each run creates timestamped files in `results/`:
+
+* a metrics CSV containing R², MAE, and RMSE for each endpoint;
+* a text run log containing the timestamp, configuration, input path, and performance metrics;
+* residual-distribution histograms; and
+* SHAP summary plots for feature attribution.
+
+To use a different experiment configuration without changing the default file:
+
+```bash
+PPMI_CONFIG_PATH=path/to/experiment_config.json python main.py
+```
+
+On Windows PowerShell, use:
+
+```powershell
+$env:PPMI_CONFIG_PATH = 'path\to\experiment_config.json'
+python main.py
+```
+
+## Running with Dummy Data
+
+To test the pipeline without PPMI data, run:
+
+```bash
+python tests/generate_dummy_data.py
+```
+
+This creates `tests/dummy_ppmi.csv` with 50 synthetic patients observed at BL,
+V01, and V02. Update `config.json` to point `data_path` to
+`tests/dummy_ppmi.csv`, then run:
+
+```bash
+python main.py
+```
+
+## Methodology
+
+The pipeline first performs a header-only schema validation before loading the full PPMI export. It normalizes identifiers and visit dates, then sorts records by participant and date. For each endpoint, it selects the first usable BL or V01 value per participant as baseline, joins that baseline to later visits, and defines the outcome as the later endpoint value minus its baseline value.
+
+Predictors consist of the endpoint's baseline value, baseline age, sex, education, disease duration, UPSIT score, and continuous days since baseline. Missing predictors are median-imputed within a scikit-learn pipeline fitted only to training data. A `RandomForestRegressor` is evaluated with `GroupShuffleSplit`, grouping by `PATNO`, so no participant contributes records to both the training and test partitions.
+
+The reported metrics are mean absolute error (MAE), root mean squared error (RMSE), and coefficient of determination (R²). For clinical interpretability, the pipeline saves a residual histogram and a TreeSHAP summary plot for each endpoint.
+
+## Testing
+
+Run the lightweight schema and longitudinal-alignment tests with:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+## Citation
+
+See [CITATION.cff](CITATION.cff) for software citation metadata.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
