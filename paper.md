@@ -41,9 +41,9 @@ PPMI-Pipeline occupies this applied layer. Rather than proposing a new disease m
 
 # Software Design
 
-The software is intentionally modular. Figure 1 illustrates the pipeline's architecture, highlighting the flow from raw PPMI ingestion to final analytical outputs.
+The software is intentionally modular. Figure @fig:pipeline-architecture illustrates the pipeline's architecture, highlighting the flow from raw PPMI ingestion to final analytical outputs.
 
-![Figure 1: High-level architectural overview of the PPMI-Pipeline workflow, depicting data processing stages from raw ingestion to model outputs and feature-attribution.](images/pipeline-architecture.png)
+![High-level architectural overview of the PPMI-Pipeline workflow, depicting data processing stages from raw ingestion to model outputs and feature-attribution.](images/pipeline-architecture.png){#fig:pipeline-architecture}
 
 `etl.py` implements PPMI input loading, header-only schema validation, type normalisation, and sorting by patient and visit date. Required columns include `PATNO`, `EVENT_ID`, `visit_date`, `moca`, and `updrs3_score`. Schema validation occurs before the full file is loaded so that incompatible exports produce a clear error message early in execution.
 
