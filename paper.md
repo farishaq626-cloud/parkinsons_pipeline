@@ -67,4 +67,6 @@ The authors utilized OpenAI Codex during the development process to support code
 
 # Acknowledgements
 
-The author thanks the Parkinson's Progression Markers Initiative (PPMI) for making clinical research data available to qualified investigators. PPMI is a public-private partnership funded by the Michael J. Fox Foundation for Parkinson's Research and funding partners. This paper describes software for working with PPMI exports; it does not redistribute PPMI data.
+Data used in the preparation of this article was obtained on 2026-07-15 from the Parkinson's Progression Markers Initiative (PPMI) database (www.ppmi-info.org/access-data-specimens/download-data), RRID:SCR_006431. For up-to-date information on the study, visit www.ppmi-info.org.
+
+PPMI—a public-private partnership—is funded by the Michael J. Fox Foundation for Parkinson's Research, and funding partners; including AbbVie, Alamar Biosciences, Aligning Science Across Parkinson’s (ASAP), Arrowhead Pharma, Arvinas, AskBio, BIAL, BioArctic, Biohaven, BlueRock Therapeutics, Bristol Myers Squibb, Calico Labs, Capsida Biotherapeutics, Critical Path Institute, DaCapo Brainscience, Denali, Edmond J. Safra Foundation, Eli Lilly, Gain Therapeutics, GE Healthcare, Genentech, GSK, Insitro, Johnson & Johnson Innovative Medicine, Lundbeck, Merck, Neumora, Neuron23, Novarti, Olink, Regeneron, Roche, Sanofi, Tenvie, UCB, Vanqua Bio, Voyager Therapeutics, The Weston Family Foundation[cite: 1].
