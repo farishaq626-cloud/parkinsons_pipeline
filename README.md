@@ -104,6 +104,16 @@ python -m unittest discover -s tests -v
 
 See [CITATION.cff](CITATION.cff) for software citation metadata.
 
+## PPMI Compliance
+
+This project utilizes data from the Parkinson's Progression Markers Initiative (PPMI) database.
+
+- **Data Download Date:** 2026-07-15
+- **PPMI Database RRID:** SCR_006431
+
+**Disclaimer:**
+As the PPMI database is always evolving, it is possible that the code may not work if the database has changed since the date the code was created.
+
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE).
