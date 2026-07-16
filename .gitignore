@@ -1,7 +1,38 @@
+# Python caches and test artifacts
 __pycache__/
-*.pyc
-*.pyo
-.env
+*.py[cod]
+.pytest_cache/
 .ipynb_checkpoints/
-*.log
+
+# Local environments and secrets
+.venv/
+venv/
+.env
+
+# Editor settings
+.vscode/
+
+# Controlled/raw data and generated test data
+data/
 *.csv
+*.xlsx
+*.xls
+
+# Generated pipeline outputs
+results/
+*_output.json
+report.json
+ml_ready_features.json
+deduplicated_patient_registry.json
+enterprise_longitudinal_output.json
+final_production_output.json
+structured_patient_data.json
+model_predictions_output.json
+features.txt
+
+# Generated figures and documents
+*.png
+*.pdf
+
+# Historical code excluded from public release
+legacy/
