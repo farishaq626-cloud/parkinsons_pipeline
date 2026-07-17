@@ -46,6 +46,7 @@ Download the appropriate PPMI curated export through the PPMI data portal and pl
 
    ```bash
    python main.py --config config.json
+   ```
 
 ## Running with Dummy Data
 
