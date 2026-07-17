@@ -40,33 +40,12 @@ Download the appropriate PPMI curated export through the PPMI data portal and pl
 
 ## Quick start
 
-1. Copy `config.json` and set `data_path` to the local PPMI `.xlsx`, `.xls`, or `.csv` export. The default configuration expects the worksheet named `20260511`.
-2. Confirm the export contains `PATNO`, `EVENT_ID`, `visit_date`, `moca`, and `updrs3_score`.
-3. Run the primary entry point:
+1. Confirm your PPMI export contains the required columns: `PATNO`, `EVENT_ID`, `visit_date`, `moca`, and `updrs3_score`.
+2. Edit the provided `config.example.json` file to set `data_path` to your local PPMI `.xlsx`, `.xls`, or `.csv` export. Set `sheet_name` to the applicable worksheet for Excel input.
+3. Run the pipeline:
 
-```bash
-python main.py
-```
-
-Each run creates timestamped files in `results/`:
-
-* a metrics CSV containing R², MAE, and RMSE for each endpoint;
-* a text run log containing the timestamp, configuration, input path, and performance metrics;
-* residual-distribution histograms; and
-* SHAP summary plots for feature attribution.
-
-To use a different experiment configuration without changing the default file:
-
-```bash
-PPMI_CONFIG_PATH=path/to/experiment_config.json python main.py
-```
-
-On Windows PowerShell, use:
-
-```powershell
-$env:PPMI_CONFIG_PATH = 'path\to\experiment_config.json'
-python main.py
-```
+   ```bash
+   python main.py --config config.example.json
 
 ## Running with Dummy Data
 
