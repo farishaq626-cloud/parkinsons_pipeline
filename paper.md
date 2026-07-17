@@ -13,7 +13,7 @@ affiliations:
   - name: Independent Researcher
     index: 1
 date: 17 July 2026
-version: 2.1.2
+version: 2.1.3
 bibliography: paper.bib
 ---
 
