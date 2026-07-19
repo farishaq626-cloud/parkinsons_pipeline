@@ -21,6 +21,7 @@ data/
 
 # Generated pipeline outputs
 results/
+pipeline.log
 *_output.json
 report.json
 ml_ready_features.json
@@ -34,9 +35,6 @@ features.txt
 # Generated figures and documents
 *.png
 *.pdf
-
-# Historical code excluded from public release
-legacy/
 
 # Generated clinical data and pipeline outputs
 /deduplicated_patient_registry.json

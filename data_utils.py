@@ -2,17 +2,23 @@
 
 from __future__ import annotations
 
+import logging
+
 import pandas as pd
 from pandas.api.types import is_datetime64_any_dtype
 
+from config import DEFAULT_TARGET_HORIZON_DAYS, DEFAULT_WINDOW_TOLERANCE_DAYS
+from exceptions import MissingColumnError
+
 
 REQUIRED_FIXED_HORIZON_COLUMNS = {"PATNO", "EVENT_ID", "SCORE", "VISIT_DATE"}
+LOGGER = logging.getLogger("ppmi_pipeline.data_utils")
 
 
 def create_fixed_horizon_dataset(
     df: pd.DataFrame,
-    target_horizon_days: int,
-    window_tolerance: int,
+    target_horizon_days: int = DEFAULT_TARGET_HORIZON_DAYS,
+    window_tolerance: int = DEFAULT_WINDOW_TOLERANCE_DAYS,
 ) -> tuple[pd.DataFrame, dict[str, int]]:
     """Build a patient-level baseline-to-fixed-horizon outcome dataset.
 
@@ -69,7 +75,7 @@ def create_fixed_horizon_dataset(
         )
     )
     if usable_baseline.empty:
-        raise ValueError(
+        raise MissingColumnError(
             "No usable baseline visits found. Baseline rows require EVENT_ID 'BL' "
             "and non-missing PATNO, VISIT_DATE, and SCORE values."
         )
@@ -119,12 +125,14 @@ def create_fixed_horizon_dataset(
         "excluded_invalid_baseline": baseline_patient_count - usable_baseline_count,
         "excluded_missing_follow_up": usable_baseline_count - retained_patient_count,
     }
-    print(
-        "Fixed-horizon dataset: "
-        f"{retained_patient_count} retained / {usable_baseline_count} usable baseline patients. "
-        "Excluded for missing usable follow-up within "
-        f"{target_horizon_days} +/- {window_tolerance} days: "
-        f"{summary['excluded_missing_follow_up']}."
+    LOGGER.info(
+        "Fixed-horizon dataset: %d retained / %d usable baseline patients. "
+        "Excluded for missing usable follow-up within %d +/- %d days: %d.",
+        retained_patient_count,
+        usable_baseline_count,
+        target_horizon_days,
+        window_tolerance,
+        summary["excluded_missing_follow_up"],
     )
     return result, summary
 

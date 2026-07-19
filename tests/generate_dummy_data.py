@@ -5,20 +5,33 @@ Run from the repository root with:
 """
 
 from pathlib import Path
+import logging
 
 import numpy as np
 import pandas as pd
 
+from config import DEFAULT_DUMMY_DATA_CONFIG, DEFAULT_DUMMY_DATA_PATH
+from logging_config import configure_logging
 
-RANDOM_SEED = 42
-N_PATIENTS = 50
-VISITS = (("BL", 0), ("V01", 180), ("V02", 365))
+
+LOGGER = logging.getLogger("ppmi_pipeline.tests.generate_dummy_data")
+RANDOM_SEED = DEFAULT_DUMMY_DATA_CONFIG["random_seed"]
+N_PATIENTS = DEFAULT_DUMMY_DATA_CONFIG["n_patients"]
+VISITS = DEFAULT_DUMMY_DATA_CONFIG["visits"]
 
 
 def generate_dummy_data(output_path: str | Path | None = None) -> Path:
-    """Create a reproducible, clinically plausible longitudinal CSV fixture."""
+    """Create a reproducible, clinically plausible longitudinal CSV fixture.
+
+    Args:
+        output_path: Optional CSV destination. Defaults to the configured test
+            fixture path.
+
+    Returns:
+        Path to the generated fixture CSV.
+    """
     rng = np.random.default_rng(RANDOM_SEED)
-    output = Path(output_path) if output_path else Path(__file__).with_name("dummy_ppmi.csv")
+    output = Path(output_path) if output_path else DEFAULT_DUMMY_DATA_PATH
     records = []
 
     for patno in range(100001, 100001 + N_PATIENTS):
@@ -66,5 +79,11 @@ def generate_dummy_data(output_path: str | Path | None = None) -> Path:
 
 
 if __name__ == "__main__":
+    configure_logging()
     csv_path = generate_dummy_data()
-    print(f"Created {csv_path} with {N_PATIENTS} patients and {N_PATIENTS * len(VISITS)} visits.")
+    LOGGER.info(
+        "Created %s with %d patients and %d visits.",
+        csv_path,
+        N_PATIENTS,
+        N_PATIENTS * len(VISITS),
+    )
