@@ -1,5 +1,22 @@
 # PPMI-Pipeline
 
+## Poster Artifacts
+
+This repository serves as the computational artifact for the poster:
+"Reproducible Fixed-Horizon Prognostic Modelling of Parkinson’s Disease Using
+Longitudinal PPMI Data".
+
+### Public Repository Scope
+
+This public repository contains **Technical Artifacts for Reproducibility**:
+software, configuration, synthetic tests, validation procedures, and technical
+diagnostic outputs. It does **not** publish clinical research conclusions,
+patient-level data, identifiable cohort analyses, or unpublished manuscripts.
+
+When generated locally, cohort-flow, validation-audit, and model-performance
+figures are written to `results/poster_assets/`. This directory is intentionally
+untracked and must be reviewed for clinical interpretation before any release.
+
 ## Abstract
 
 Parkinson’s disease exhibits substantial clinical heterogeneity, complicating efforts to forecast individual progression from routine longitudinal assessments. Transparent and reproducible prognostic workflows are therefore needed to transform heterogeneous clinical exports into clinically interpretable modelling datasets while minimising information leakage.

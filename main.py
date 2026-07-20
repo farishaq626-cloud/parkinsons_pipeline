@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import logging
+from collections.abc import Mapping
 from typing import Any
 
 import pandas as pd
@@ -22,11 +23,13 @@ from visualization import ResultVisualizer
 LOGGER = logging.getLogger("ppmi_pipeline.main")
 
 
-def load_config() -> dict[str, Any]:
+def load_config(config_override: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """Return an isolated copy of the canonical fixed-horizon configuration.
 
     Args:
-        None.
+        config_override: Optional in-memory override for a documented analysis
+            run. When omitted, ``FIXED_HORIZON_CONFIG`` remains the canonical
+            default source of settings.
 
     Returns:
         A deep copy of ``FIXED_HORIZON_CONFIG`` from ``config.py``.
@@ -34,7 +37,9 @@ def load_config() -> dict[str, Any]:
     Raises:
         ConfigurationError: If required fixed-horizon settings are absent.
     """
-    config = copy.deepcopy(FIXED_HORIZON_CONFIG)
+    config = copy.deepcopy(
+        FIXED_HORIZON_CONFIG if config_override is None else dict(config_override)
+    )
     required = {
         "data_path",
         "score_column",
@@ -96,7 +101,9 @@ def create_progression_label(
     return labelled
 
 
-def run_pipeline() -> PrognosticModel:
+def run_pipeline(
+    config_override: Mapping[str, Any] | None = None,
+) -> PrognosticModel:
     """Execute the canonical fixed-horizon PPMI prognostic workflow.
 
     Execution order is: configuration, ETL, schema harmonisation, fixed-horizon
@@ -104,7 +111,9 @@ def run_pipeline() -> PrognosticModel:
     and publication-quality visualisation.
 
     Args:
-        None.
+        config_override: Optional in-memory configuration used for one
+            explicitly requested analysis run. It is validated through
+            :func:`load_config` and does not modify ``config.py``.
 
     Returns:
         A fitted ``PrognosticModel`` containing metrics and stability reports.
@@ -114,7 +123,7 @@ def run_pipeline() -> PrognosticModel:
             with the available fixed-horizon cohort.
         ValueError: If clinical data cannot support the requested analysis.
     """
-    config = load_config()
+    config = load_config(config_override)
     configure_logging(config["log_path"], level=config["log_level"])
     LOGGER.info("Starting fixed-horizon PPMI prognostic pipeline.")
 
