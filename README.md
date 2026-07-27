@@ -6,6 +6,9 @@ This repository serves as the computational artifact for the poster:
 "Reproducible Fixed-Horizon Prognostic Modelling of Parkinson’s Disease Using
 Longitudinal PPMI Data".
 
+The current local release candidate is **v2.1.6**. The project archive is
+available at [Zenodo (DOI 10.5281/zenodo.21225810)](https://doi.org/10.5281/zenodo.21225810).
+
 ### Public Repository Scope
 
 This public repository contains **Technical Artifacts for Reproducibility**:
@@ -23,7 +26,7 @@ Parkinson’s disease exhibits substantial clinical heterogeneity, complicating 
 
 We developed a modular prognostic pipeline for Parkinson’s Progression Markers Initiative (PPMI) clinical data. The pipeline validates and normalises canonical patient, visit, date, cognitive, and motor fields during ingestion. Longitudinal observations are then mapped to fixed-horizon outcomes: the earliest usable baseline visit (`BL`) is identified for each patient, and the follow-up score closest to a prespecified horizon within an allowable visit window is selected. This produces patient-level baseline score, target score, and delta-score records while explicitly reporting attrition caused by unavailable follow-up data. Default settings define a 365-day horizon with a ±90-day tolerance, although these parameters are centrally configurable.
 
-For binary prognostic targets, ElasticNet-regularised logistic regression is evaluated using `GroupKFold` cross-validation. Patient identifiers are mapped to a dedicated `patient_id` grouping field, and every fold is checked to ensure that no patient contributes to both training and testing partitions. The framework reports precision, recall, F1-score, and AUC-ROC per fold, while retaining model coefficients for each split. Feature stability is summarised using mean normalised importance, importance variability, coefficient direction, and the proportion of folds in which a feature remains non-zero. Publication-ready visualisations display the relationship between importance and cross-fold stability and show coefficient patterns across patient-isolated folds.
+For binary prognostic targets, ElasticNet-regularised logistic regression is evaluated using `GroupKFold` cross-validation. Patient identifiers are mapped to a dedicated `patient_id` grouping field, and every fold is checked to ensure that no patient contributes to both training and testing partitions. The current benchmark uses `Baseline_Score` as its sole predictor. The framework reports precision, recall, F1-score, and AUC-ROC per fold and retains the fitted coefficient for each split so that its direction and cross-fold consistency can be audited.
 
 This methodology prioritises interpretability and methodological validity over predictive discrimination alone. By providing explicit longitudinal-to-fixed-horizon mapping, auditable follow-up attrition, and strict patient-level isolation, the pipeline establishes a reproducible basis for future patient stratification studies and clinically responsible evaluation of candidate prognostic markers.
 
@@ -110,9 +113,7 @@ The pipeline first performs a header-only schema validation before loading the f
 
 Baseline-compatible numeric predictors are median-imputed and standardised within each training fold before ElasticNet logistic regression. A binary progression label is defined from the configured score-change threshold. `GroupKFold` groups strictly by patient, and each fold asserts that training and testing partitions share no participants.
 
-The reported metrics are mean absolute error (MAE), root mean squared error (RMSE), and coefficient of determination (R²). For clinical interpretability, the pipeline saves a residual histogram and a TreeSHAP summary plot for each endpoint.
-
-The preceding Random Forest/TreeSHAP sentence describes the quarantined endpoint-delta workflow in `legacy/`, not the canonical pipeline. The active fixed-horizon workflow reports precision, recall, F1-score, and AUC-ROC; it saves per-fold coefficients, feature-stability summaries, an importance-versus-stability plot, and a cross-fold coefficient heatmap.
+The active fixed-horizon workflow reports precision, recall, F1-score, and AUC-ROC. It saves per-fold coefficients, a coefficient-consistency summary, a performance plot, and a cross-fold coefficient heatmap. The quarantined endpoint-delta workflow in `legacy/` is not executed by `main.py`.
 
 ## Testing
 
@@ -124,7 +125,9 @@ python -m unittest discover -s tests -v
 
 ## Citation
 
-See [CITATION.cff](CITATION.cff) for software citation metadata.
+See [CITATION.cff](CITATION.cff) for software citation metadata. The project
+archive is available from
+[Zenodo](https://doi.org/10.5281/zenodo.21225810).
 
 ## Documentation
 
@@ -134,13 +137,35 @@ are located in [manuscript/](manuscript/). The draft source is
 
 ## PPMI Compliance
 
-This project utilizes data from the Parkinson's Progression Markers Initiative (PPMI) database.
+The following acknowledgement follows the
+[September 2024 PPMI Publication Policy](https://www.ppmi-info.org/sites/default/files/docs/ppmi-publication-policy.pdf)
+and uses the
+[March 2026 funding-partner list](https://www.ppmi-info.org/sites/default/files/docs/PPMI%20Funding%20Partners.pdf):
 
-- **Data Download Date:** 2026-07-15
-- **PPMI Database RRID:** SCR_006431
+> Data used in the preparation of this article was obtained on 2026-07-15 from
+> the Parkinson’s Progression Markers Initiative (PPMI) database
+> (www.ppmi-info.org/access-data-specimens/download-data), RRID:SCR_006431. For
+> up-to-date information on the study, visit www.ppmi-info.org.
 
-**Disclaimer:**
-As the PPMI database is always evolving, it is possible that the code may not work if the database has changed since the date the code was created.
+> PPMI – a public-private partnership – is funded by the Michael J. Fox
+> Foundation for Parkinson’s Research, and funding partners; including AbbVie,
+> Alamar Biosciences, Aligning Science Across Parkinson’s (ASAP), Arrowhead
+> Pharma, Arvinas, AskBio, BIAL, BioArctic, Biohaven, BlueRock Therapeutics,
+> Bristol Myers Squibb, Calico Labs, Capsida Biotherapeutics, Critical Path
+> Institute, DaCapo Brainscience, Denali, Edmond J. Safra Foundation, Eli Lilly,
+> Gain Therapeutics, GE Healthcare, Genentech, GSK, Insitro, Johnson & Johnson
+> Innovative Medicine, Lundbeck, Merck, Neumora, Neuron23, Novartis, Olink,
+> Regeneron, Roche, Sanofi, Tenvie, UCB, Vanqua Bio, Voyager Therapeutics, The
+> Weston Family Foundation.
+
+This is an external PPMI work, so PPMI group authorship is not claimed. Posters
+and abstracts using PPMI data must be uploaded through the PPMI website for DPC
+administrative compliance review and the DPC must be notified after acceptance
+or presentation at `PPMI.Publications@indd.org`.
+
+**Reproducibility disclaimer:** “As the PPMI database is always evolving, it is
+possible that the code may not work if the database has changed since the date
+the code was created.”
 
 ## License
 

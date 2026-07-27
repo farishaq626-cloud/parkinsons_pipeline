@@ -12,12 +12,28 @@ venv/
 # Editor settings
 .vscode/
 
-# Controlled/raw data and generated test data
-data/
+# Controlled/raw PPMI data and intermediate analysis datasets
+/data/
+/raw_data/
+/processed_data/
+/intermediate/
+/outputs/
 *.csv
-!tests/dummy_ppmi.csv
+*.tsv
+*.parquet
+*.feather
+*.arrow
+*.h5
+*.hdf5
+*.sas7bdat
+*.sav
+*.dta
 *.xlsx
 *.xls
+*.zip
+
+# The synthetic fixture is intentionally public and contains no PPMI records.
+!tests/dummy_ppmi.csv
 
 # Generated pipeline outputs
 results/
@@ -35,6 +51,23 @@ features.txt
 # Generated figures and documents
 *.png
 *.pdf
+
+# Preserve manuscript documentation artwork already intended for publication.
+!manuscript/images/*.png
+
+# Local poster build products and LaTeX auxiliaries
+/poster.pdf
+/poster_build/
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.nav
+*.out
+*.snm
+*.synctex.gz
+*.toc
 
 # Generated clinical data and pipeline outputs
 /deduplicated_patient_registry.json

@@ -1,0 +1,31 @@
+% Minimal Gemini-inspired inner theme for a three-column Beamer poster.
+\ProvidesPackage{beamerinnerthemegemini}[2026/07/26 Gemini-inspired poster inner theme]
+
+\RequirePackage{etoolbox}
+
+\setbeamertemplate{itemize item}{\scriptsize\raise1.25pt\hbox{\donotcoloroutermaths$\blacktriangleright$}}
+\setbeamertemplate{itemize subitem}{\tiny\raise1.5pt\hbox{\donotcoloroutermaths$\blacktriangleright$}}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{caption}[numbered]
+
+\setbeamertemplate{block begin}{%
+  \vskip\medskipamount
+  \begin{beamercolorbox}[rounded=true,shadow=false,sep=0.7ex,dp=0.8ex,leftskip=1.5ex,rightskip=1.5ex]{block title}%
+    \usebeamerfont{block title}\insertblocktitle
+  \end{beamercolorbox}%
+  {\parskip0pt\par}%
+  \ifbeamercolorempty[bg]{block body}{}{%
+    \nointerlineskip
+    \usebeamerfont{block body}%
+    \begin{beamercolorbox}[rounded=true,shadow=false,sep=1.25ex,vmode]{block body}%
+  }%
+}
+
+\setbeamertemplate{block end}{%
+  \ifbeamercolorempty[bg]{block body}{}{%
+    \end{beamercolorbox}%
+  }%
+  \vskip\smallskipamount
+}
+
+\endinput

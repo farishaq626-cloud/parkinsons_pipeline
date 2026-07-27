@@ -95,7 +95,7 @@ class ResultVisualizer:
 
         axis.set_xlabel("Importance Mean", fontweight="bold")
         axis.set_ylabel("Stability Score", fontweight="bold")
-        axis.set_title("Feature Importance and Cross-Fold Stability", fontweight="bold")
+        axis.set_title("Baseline-Score Coefficient Consistency", fontweight="bold")
         axis.grid(axis="both", color="#D9D9D9", linewidth=0.6, alpha=0.7)
         axis.set_axisbelow(True)
         axis.spines[["top", "right"]].set_visible(False)

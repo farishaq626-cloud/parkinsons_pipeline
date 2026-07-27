@@ -7,6 +7,10 @@ authors:
     family-names: "Haq"
 repository-code: "https://github.com/farishaq626-cloud/parkinsons_pipeline"
 url: "https://github.com/farishaq626-cloud/parkinsons_pipeline"
-version: "2.1.5"
-date-released: "2026-07-20"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.21225810"
+    description: "Archived software release"
+version: "2.1.6"
+date-released: "2026-07-27"
 license: MIT

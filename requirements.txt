@@ -4,3 +4,4 @@ scikit-learn
 openpyxl
 matplotlib
 seaborn
+qrcode[pil]
