@@ -1,4 +1,4 @@
-"""Shared console and file logging configuration for the PPMI pipeline."""
+"""Shared logging configuration for the PPMI methodology framework."""
 
 from __future__ import annotations
 

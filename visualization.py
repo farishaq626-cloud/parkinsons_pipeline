@@ -1,4 +1,4 @@
-"""Publication-quality visualisation of prognostic model stability reports."""
+"""Publication-quality visualization of execution-harness reports."""
 
 from __future__ import annotations
 
@@ -14,11 +14,12 @@ import matplotlib.pyplot as plt
 from config import DEFAULT_FIGURE_DPI, MODELING_RESULTS_DIR
 from exceptions import DataFileNotFoundError, MissingColumnError
 
+
 class ResultVisualizer:
-    """Load model reports and create publication-quality interpretability plots.
+    """Load model reports and create publication-quality diagnostic plots.
 
     The class expects the CSV outputs written by
-    ``PrognosticModel.save_reports``. The model's native column names are
+    ``ExecutionHarnessModel.save_reports``. The model's native column names are
     converted internally to the plot-facing names ``Importance_Mean``,
     ``Importance_Std``, and ``Stability_Score``.
 
@@ -75,13 +76,15 @@ class ResultVisualizer:
         )
         del scatter
 
-        top_features = data.assign(
-            _ranking=data["Importance_Mean"] * data["Stability_Score"]
-        ).sort_values(
-            ["_ranking", "Stability_Score", "Importance_Mean"],
-            ascending=False,
-            kind="stable",
-        ).head(5)
+        top_features = (
+            data.assign(_ranking=data["Importance_Mean"] * data["Stability_Score"])
+            .sort_values(
+                ["_ranking", "Stability_Score", "Importance_Mean"],
+                ascending=False,
+                kind="stable",
+            )
+            .head(5)
+        )
         for position, (_, feature) in enumerate(top_features.iterrows()):
             vertical_offset = 8 if position % 2 == 0 else -12
             axis.annotate(
@@ -124,7 +127,9 @@ class ResultVisualizer:
         )
         heatmap_data = heatmap_data.sort_index(axis="columns")
         if heatmap_data.empty:
-            raise ValueError("No feature coefficients are available for heatmap plotting.")
+            raise ValueError(
+                "No feature coefficients are available for heatmap plotting."
+            )
 
         max_abs_value = float(np.nanmax(np.abs(heatmap_data.to_numpy())))
         if max_abs_value == 0 or np.isnan(max_abs_value):
@@ -147,7 +152,9 @@ class ResultVisualizer:
         axis.set_yticks(range(len(heatmap_data.index)), heatmap_data.index)
         axis.set_xlabel("Validation Fold", fontweight="bold")
         axis.set_ylabel("Feature", fontweight="bold")
-        axis.set_title("Feature Coefficients Across Patient-Isolated Folds", fontweight="bold")
+        axis.set_title(
+            "Feature Coefficients Across Patient-Isolated Folds", fontweight="bold"
+        )
         axis.tick_params(axis="x", bottom=False, top=False)
         axis.tick_params(axis="y", left=False)
 
@@ -155,7 +162,9 @@ class ResultVisualizer:
             for row_index, row in enumerate(heatmap_data.to_numpy()):
                 for column_index, value in enumerate(row):
                     if not np.isnan(value):
-                        text_colour = "white" if abs(value) > max_abs_value * 0.55 else "black"
+                        text_colour = (
+                            "white" if abs(value) > max_abs_value * 0.55 else "black"
+                        )
                         axis.text(
                             column_index,
                             row_index,
@@ -173,7 +182,8 @@ class ResultVisualizer:
         if not path.exists():
             raise DataFileNotFoundError(
                 f"Required modelling report was not found: {path}. "
-                "Run PrognosticModel.train_and_evaluate(..., output_dir='results/modeling') "
+                "Run ExecutionHarnessModel.train_and_evaluate(..., "
+                "output_dir='results/modeling') "
                 "before creating visualisations."
             )
         return pd.read_csv(path)
@@ -187,7 +197,9 @@ class ResultVisualizer:
             "Stability_Score": "stability_rate",
         }
         missing = [
-            source for source in source_columns.values() if source not in self.feature_stability.columns
+            source
+            for source in source_columns.values()
+            if source not in self.feature_stability.columns
         ]
         if missing:
             raise MissingColumnError(
@@ -209,7 +221,8 @@ class ResultVisualizer:
         )
         if plot_data[["Importance_Mean", "Stability_Score"]].isna().any().any():
             raise ValueError(
-                "feature_stability.csv contains non-numeric importance or stability values."
+                "feature_stability.csv contains non-numeric importance "
+                "or stability values."
             )
         if (plot_data["Importance_Std"] < 0).any():
             raise ValueError("Importance standard deviation cannot be negative.")

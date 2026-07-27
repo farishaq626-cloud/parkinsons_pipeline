@@ -1,23 +1,23 @@
-"""Schema adapter connecting normalised PPMI data to fixed-horizon modelling."""
+"""Schema adapter connecting normalized PPMI data to the methodology contract."""
 
 from __future__ import annotations
 
 import pandas as pd
 
-from config import DEFAULT_PROGNOSTIC_SCORE_COLUMN
+from config import DEFAULT_SCORE_COLUMN
 from exceptions import MissingColumnError
 
 
 def harmonize_schema(
     df: pd.DataFrame,
-    score_column: str = DEFAULT_PROGNOSTIC_SCORE_COLUMN,
+    score_column: str = DEFAULT_SCORE_COLUMN,
 ) -> pd.DataFrame:
     """Map normalised PPMI fields to the fixed-horizon input schema.
 
     Args:
         df: Normalised PPMI data from ``PPMIDataLoader.load``.
-        score_column: Normalised clinical score column used as the prognostic
-            outcome, such as ``updrs3_score``.
+        score_column: Normalized score column used for fixed-horizon target
+            construction, such as ``updrs3_score``.
 
     Returns:
         A copy with exactly ``PATNO``, ``EVENT_ID``, ``SCORE``, and

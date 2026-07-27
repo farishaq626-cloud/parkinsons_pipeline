@@ -7,11 +7,11 @@ the compiler output in ``poster_build/`` for diagnosis.
 
 from __future__ import annotations
 
+import re
 import shutil
 import subprocess
 import sys
 from pathlib import Path
-
 
 ROOT = Path(__file__).resolve().parent
 SOURCE = ROOT / "poster.tex"
@@ -22,7 +22,16 @@ THEME_FILES = (
     "beamerinnerthemegemini.sty",
 )
 ENGINES = ("pdflatex", "lualatex", "xelatex")
-MIKTEX_BIN = Path.home() / "AppData" / "Local" / "Programs" / "MiKTeX" / "miktex" / "bin" / "x64"
+MIKTEX_BIN = (
+    Path.home() / "AppData" / "Local" / "Programs" / "MiKTeX" / "miktex" / "bin" / "x64"
+)
+BUILD_WARNING_PATTERN = re.compile(
+    r"^(?:LaTeX|Package .+|Class .+|pdfTeX) Warning:"
+    r"|^(?:Over|Under)full \\[hv]box"
+    r"|undefined references?"
+    r"|Citation .+ undefined",
+    flags=re.IGNORECASE | re.MULTILINE,
+)
 
 
 def find_engine() -> str | None:
@@ -58,6 +67,8 @@ def run(command: list[str]) -> None:
         command,
         cwd=ROOT,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         capture_output=True,
         check=False,
     )
@@ -65,6 +76,27 @@ def run(command: list[str]) -> None:
         print(completed.stdout)
         print(completed.stderr, file=sys.stderr)
         raise RuntimeError(f"Build command failed: {' '.join(command)}")
+
+
+def find_build_warnings(log_path: Path) -> list[str]:
+    """Return actionable LaTeX warnings from the final build log.
+
+    Args:
+        log_path: Final LaTeX log produced after all compilation passes.
+
+    Returns:
+        Unique warning lines in their original order.
+
+    Raises:
+        FileNotFoundError: If the expected final build log is absent.
+    """
+    log_text = log_path.read_text(encoding="utf-8", errors="replace")
+    warnings: list[str] = []
+    for match in BUILD_WARNING_PATTERN.finditer(log_text):
+        line = log_text[match.start() :].splitlines()[0].strip()
+        if line not in warnings:
+            warnings.append(line)
+    return warnings
 
 
 def main() -> int:
@@ -80,7 +112,10 @@ def main() -> int:
 
     missing_themes = [name for name in THEME_FILES if not (ROOT / name).exists()]
     if missing_themes:
-        print("ERROR: Gemini theme files are required before compilation.", file=sys.stderr)
+        print(
+            "ERROR: Gemini theme files are required before compilation.",
+            file=sys.stderr,
+        )
         print("Missing: " + ", ".join(missing_themes), file=sys.stderr)
         print(
             "Download/upload the Gemini theme files to the repository root, "
@@ -91,7 +126,10 @@ def main() -> int:
 
     engine = find_engine()
     if engine is None:
-        print("ERROR: No LaTeX engine was found (lualatex, pdflatex, or xelatex).", file=sys.stderr)
+        print(
+            "ERROR: No LaTeX engine was found (lualatex, pdflatex, or xelatex).",
+            file=sys.stderr,
+        )
         print(
             "Install MiKTeX or TeX Live, ensure its bin directory is on PATH, "
             "then rerun: python build_poster.py. Alternatively, upload poster.tex "
@@ -102,10 +140,14 @@ def main() -> int:
 
     bibtex = find_bibtex()
     if bibtex is None:
-        print("ERROR: BibTeX was not found alongside the LaTeX engine.", file=sys.stderr)
+        print(
+            "ERROR: BibTeX was not found alongside the LaTeX engine.", file=sys.stderr
+        )
         return 1
 
-    BUILD_DIR.mkdir(exist_ok=True)
+    if BUILD_DIR.exists():
+        shutil.rmtree(BUILD_DIR)
+    BUILD_DIR.mkdir()
     latex_command = [
         engine,
         "-interaction=nonstopmode",
@@ -129,8 +171,22 @@ def main() -> int:
         print("ERROR: Compilation finished without a usable PDF.", file=sys.stderr)
         return 1
 
+    log_path = BUILD_DIR / "poster.log"
+    try:
+        warnings = find_build_warnings(log_path)
+    except FileNotFoundError:
+        print(f"ERROR: Expected build log was not created: {log_path}", file=sys.stderr)
+        return 1
+    if warnings:
+        print("ERROR: Poster build completed with LaTeX warnings:", file=sys.stderr)
+        for warning in warnings:
+            print(f"  - {warning}", file=sys.stderr)
+        return 1
+
     final_pdf = ROOT / "poster.pdf"
-    shutil.copy2(output, final_pdf)
+    temporary_pdf = BUILD_DIR / "poster.final.pdf"
+    shutil.copy2(output, temporary_pdf)
+    temporary_pdf.replace(final_pdf)
     print(f"SUCCESS: Poster created at {final_pdf}")
     return 0
 

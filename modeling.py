@@ -1,4 +1,4 @@
-"""Interpretable baseline prognostic modelling for fixed-horizon PPMI data."""
+"""Interpretable execution-harness modelling for fixed-horizon PPMI data."""
 
 from __future__ import annotations
 
@@ -20,16 +20,16 @@ from sklearn.preprocessing import StandardScaler
 from config import DEFAULT_LOGISTIC_REGRESSION_CONFIG, DEFAULT_N_SPLITS
 from validation import ValidationFramework
 
-
 LOGGER = logging.getLogger("ppmi_pipeline.modeling")
 
 
-class PrognosticModel:
-    """Train an interpretable, patient-isolated baseline prognosis model.
+class ExecutionHarnessModel:
+    """Train a patient-isolated model as an end-to-end execution harness.
 
-    The baseline model is ElasticNet-regularised logistic regression. It uses
-    only baseline-compatible numeric predictors and excludes identifiers and
-    fixed-horizon outcome columns that could leak target information.
+    ElasticNet-regularised logistic regression verifies that fixed-horizon
+    construction, patient isolation, preprocessing, fitting, and reporting
+    execute coherently. It is a methodological smoke test rather than an
+    optimized clinical predictor.
 
     Args:
         dataset: Patient-level modelling dataset. A ``PATNO`` column from
@@ -39,6 +39,7 @@ class PrognosticModel:
         n_splits: Number of patient-grouped GroupKFold partitions.
         c: Inverse regularisation strength for logistic regression.
         l1_ratio: ElasticNet mixing parameter, where 0 is L2 and 1 is L1.
+        max_iter: Maximum number of solver iterations.
         random_state: Seed used by the ``saga`` solver.
 
     Attributes:
@@ -64,19 +65,22 @@ class PrognosticModel:
         n_splits: int = DEFAULT_N_SPLITS,
         c: float = DEFAULT_LOGISTIC_REGRESSION_CONFIG["c"],
         l1_ratio: float = DEFAULT_LOGISTIC_REGRESSION_CONFIG["l1_ratio"],
+        max_iter: int = DEFAULT_LOGISTIC_REGRESSION_CONFIG["max_iter"],
         random_state: int = DEFAULT_LOGISTIC_REGRESSION_CONFIG["random_state"],
         validation_framework: ValidationFramework | None = None,
     ) -> None:
         self.target = target
         self.c = c
         self.l1_ratio = l1_ratio
+        self.max_iter = max_iter
         self.random_state = random_state
         self.validation = validation_framework or ValidationFramework(
             dataset, target=target, n_splits=n_splits
         )
         if self.validation.target != target:
             raise ValueError(
-                "validation_framework target must match the PrognosticModel target."
+                "validation_framework target must match the ExecutionHarnessModel "
+                "target."
             )
         self.dataset = self.validation.dataset
         self.feature_names = self._select_feature_names()
@@ -94,11 +98,12 @@ class PrognosticModel:
         n_splits: int = DEFAULT_N_SPLITS,
         c: float = DEFAULT_LOGISTIC_REGRESSION_CONFIG["c"],
         l1_ratio: float = DEFAULT_LOGISTIC_REGRESSION_CONFIG["l1_ratio"],
+        max_iter: int = DEFAULT_LOGISTIC_REGRESSION_CONFIG["max_iter"],
         random_state: int = DEFAULT_LOGISTIC_REGRESSION_CONFIG["random_state"],
         output_dir: str | Path | None = None,
         validation_framework: ValidationFramework | None = None,
-    ) -> PrognosticModel:
-        """Train and evaluate the baseline model across patient-isolated folds.
+    ) -> ExecutionHarnessModel:
+        """Run the execution-harness model across patient-isolated folds.
 
         Args:
             dataset: Patient-level modelling dataset.
@@ -106,12 +111,13 @@ class PrognosticModel:
             n_splits: Number of patient-grouped GroupKFold partitions.
             c: Inverse regularisation strength for logistic regression.
             l1_ratio: ElasticNet mixing parameter, where 0 is L2 and 1 is L1.
+            max_iter: Maximum number of solver iterations.
             random_state: Seed used by the ``saga`` solver.
             output_dir: Optional directory for CSV copies of fold metrics,
                 fold coefficients, and feature-stability summaries.
 
         Returns:
-            A fitted ``PrognosticModel`` instance containing standard reports
+            A fitted ``ExecutionHarnessModel`` containing standard reports
             in ``fold_metrics_``, ``fold_coefficients_``, and
             ``feature_stability_``.
         """
@@ -121,6 +127,7 @@ class PrognosticModel:
             n_splits=n_splits,
             c=c,
             l1_ratio=l1_ratio,
+            max_iter=max_iter,
             random_state=random_state,
             validation_framework=validation_framework,
         )
@@ -136,14 +143,20 @@ class PrognosticModel:
             output_dir: Directory in which the modelling reports will be saved.
         """
         if self.fold_metrics_.empty:
-            raise RuntimeError("No fold results are available. Run train_and_evaluate first.")
+            raise RuntimeError(
+                "No fold results are available. Run train_and_evaluate first."
+            )
 
         destination = Path(output_dir)
         destination.mkdir(parents=True, exist_ok=True)
         self.fold_metrics_.to_csv(destination / "fold_metrics.csv", index=False)
-        self.fold_coefficients_.to_csv(destination / "fold_coefficients.csv", index=False)
-        self.feature_stability_.to_csv(destination / "feature_stability.csv", index=False)
-        LOGGER.info("Saved prognostic model reports to %s", destination)
+        self.fold_coefficients_.to_csv(
+            destination / "fold_coefficients.csv", index=False
+        )
+        self.feature_stability_.to_csv(
+            destination / "feature_stability.csv", index=False
+        )
+        LOGGER.info("Saved execution-harness reports to %s", destination)
 
     def _fit_folds(self) -> None:
         """Fit a separate ElasticNet logistic model for each validation fold."""
@@ -174,7 +187,9 @@ class PrognosticModel:
             positive_class_index = list(classifier.classes_).index(positive_class)
             auc_roc = float("nan")
             if test_y.nunique() == 2:
-                auc_roc = float(roc_auc_score(test_y, probabilities[:, positive_class_index]))
+                auc_roc = float(
+                    roc_auc_score(test_y, probabilities[:, positive_class_index])
+                )
 
             metric_rows.append(
                 {
@@ -215,7 +230,10 @@ class PrognosticModel:
         self.fold_metrics_ = pd.DataFrame(metric_rows)
         self.fold_coefficients_ = pd.concat(coefficient_frames, ignore_index=True)
         self.feature_stability_ = self._summarize_feature_stability()
-        LOGGER.info("Completed %d patient-isolated prognostic folds", len(metric_rows))
+        LOGGER.info(
+            "Completed %d patient-isolated execution-harness folds",
+            len(metric_rows),
+        )
 
     def _build_estimator(self) -> Pipeline:
         """Build the standardised ElasticNet logistic-regression pipeline."""
@@ -229,7 +247,7 @@ class PrognosticModel:
                         solver="saga",
                         l1_ratio=self.l1_ratio,
                         C=self.c,
-                        max_iter=DEFAULT_LOGISTIC_REGRESSION_CONFIG["max_iter"],
+                        max_iter=self.max_iter,
                         random_state=self.random_state,
                     ),
                 ),
@@ -279,8 +297,9 @@ class PrognosticModel:
             else "feature_importance"
         )
         summary = (
-            self.fold_coefficients_
-            .assign(_nonzero=lambda frame: frame[coefficient_column].ne(0))
+            self.fold_coefficients_.assign(
+                _nonzero=lambda frame: frame[coefficient_column].ne(0)
+            )
             .groupby("feature", as_index=False)
             .agg(
                 mean_normalized_importance=("normalized_importance", "mean"),
@@ -300,7 +319,11 @@ class PrognosticModel:
         candidate_columns = [
             column for column in self.dataset.columns if column not in excluded_columns
         ]
-        return self.dataset[candidate_columns].select_dtypes(include="number").columns.tolist()
+        return (
+            self.dataset[candidate_columns]
+            .select_dtypes(include="number")
+            .columns.tolist()
+        )
 
     def _validate_model_configuration(self) -> None:
         """Validate binary-target and ElasticNet modelling assumptions."""
@@ -310,9 +333,20 @@ class PrognosticModel:
             )
         if self.dataset[self.target].nunique() != 2:
             raise ValueError(
-                f"Target '{self.target}' must contain exactly two classes for logistic regression."
+                f"Target '{self.target}' must contain exactly two classes "
+                "for logistic regression."
             )
         if not isinstance(self.c, (int, float)) or self.c <= 0:
             raise ValueError("c must be a positive number.")
         if not isinstance(self.l1_ratio, (int, float)) or not 0 <= self.l1_ratio <= 1:
             raise ValueError("l1_ratio must be a number between 0 and 1.")
+        if (
+            isinstance(self.max_iter, bool)
+            or not isinstance(self.max_iter, int)
+            or self.max_iter <= 0
+        ):
+            raise ValueError("max_iter must be a positive integer.")
+
+
+# Backward-compatible public name retained for existing callers.
+PrognosticModel = ExecutionHarnessModel

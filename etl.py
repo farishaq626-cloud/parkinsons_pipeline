@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 import pandas as pd
 
 from exceptions import DataFileNotFoundError, MissingColumnError
-
 
 LOGGER = logging.getLogger("ppmi_pipeline.etl")
 PPMI_REQUIRED_COLUMNS = {"PATNO", "EVENT_ID", "visit_date", "moca", "updrs3_score"}

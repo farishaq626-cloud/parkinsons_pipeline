@@ -88,10 +88,11 @@ class ValidationFramework:
         overlapping_patients = set(train_df["patient_id"]).intersection(
             test_df["patient_id"]
         )
-        assert not overlapping_patients, (
-            "Patient leakage detected between training and testing partitions: "
-            f"{sorted(overlapping_patients)}"
-        )
+        if overlapping_patients:
+            raise AssertionError(
+                "Patient leakage detected between training and testing partitions: "
+                f"{sorted(overlapping_patients)}"
+            )
 
     def _prepare_dataset(self, dataset: pd.DataFrame) -> pd.DataFrame:
         """Copy the dataset and create a validated patient_id alias if needed."""
@@ -103,10 +104,13 @@ class ValidationFramework:
         has_patno = self.fixed_horizon_patient_column in prepared.columns
         if not has_patient_id and not has_patno:
             raise MissingColumnError(
-                "dataset must contain 'patient_id' or the fixed-horizon identifier 'PATNO'."
+                "dataset must contain 'patient_id' or the fixed-horizon "
+                "identifier 'PATNO'."
             )
         if not has_patient_id:
-            prepared[self.patient_id_column] = prepared[self.fixed_horizon_patient_column]
+            prepared[self.patient_id_column] = prepared[
+                self.fixed_horizon_patient_column
+            ]
         elif has_patno and not prepared[self.patient_id_column].equals(
             prepared[self.fixed_horizon_patient_column]
         ):
@@ -121,7 +125,9 @@ class ValidationFramework:
                 f"Target column '{self.target}' is not present in dataset."
             )
         if self.dataset[self.patient_id_column].isna().any():
-            raise ValueError("patient_id contains missing values and cannot be grouped safely.")
+            raise ValueError(
+                "patient_id contains missing values and cannot be grouped safely."
+            )
         if self.dataset[self.target].isna().any():
             raise ValueError(f"Target column '{self.target}' contains missing values.")
         if isinstance(self.n_splits, bool) or not isinstance(self.n_splits, int):

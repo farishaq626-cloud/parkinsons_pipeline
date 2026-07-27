@@ -3,10 +3,10 @@
 ## Poster Artifacts
 
 This repository serves as the computational artifact for the poster:
-"Reproducible Fixed-Horizon Prognostic Modelling of Parkinson’s Disease Using
-Longitudinal PPMI Data".
+"PPMI-Pipeline: A Reproducible Python Framework for Auditable Fixed-Horizon
+Longitudinal Modelling".
 
-The current local release candidate is **v2.1.6**. The project archive is
+The current software release is **v2.1.7**. The project archive is
 available at [Zenodo (DOI 10.5281/zenodo.21225810)](https://doi.org/10.5281/zenodo.21225810).
 
 ### Public Repository Scope
@@ -22,15 +22,30 @@ untracked and must be reviewed for clinical interpretation before any release.
 
 ## Abstract
 
-Parkinson’s disease exhibits substantial clinical heterogeneity, complicating efforts to forecast individual progression from routine longitudinal assessments. Transparent and reproducible prognostic workflows are therefore needed to transform heterogeneous clinical exports into clinically interpretable modelling datasets while minimising information leakage.
+PPMI-Pipeline is an open-source Python framework for auditable data engineering
+and computational-method validation using longitudinal Parkinson’s Progression
+Markers Initiative (PPMI) exports as a reference implementation. It replaces
+one-off preprocessing scripts with explicit contracts for ingestion, schema
+harmonization, fixed-horizon construction, patient-isolated validation, and
+artifact generation.
 
-We developed a modular prognostic pipeline for Parkinson’s Progression Markers Initiative (PPMI) clinical data. The pipeline validates and normalises canonical patient, visit, date, cognitive, and motor fields during ingestion. Longitudinal observations are then mapped to fixed-horizon outcomes: the earliest usable baseline visit (`BL`) is identified for each patient, and the follow-up score closest to a prespecified horizon within an allowable visit window is selected. This produces patient-level baseline score, target score, and delta-score records while explicitly reporting attrition caused by unavailable follow-up data. Default settings define a 365-day horizon with a ±90-day tolerance, although these parameters are centrally configurable.
+The ETL layer validates canonical fields before loading and normalizes patient,
+visit, score, and date values. A schema adapter then maps the selected score
+endpoint into a stable fixed-horizon contract. For each patient, the earliest
+usable baseline is paired with the eligible follow-up nearest a configured
+horizon, while retained and excluded patient counts are reported explicitly.
 
-For binary prognostic targets, ElasticNet-regularised logistic regression is evaluated using `GroupKFold` cross-validation. Patient identifiers are mapped to a dedicated `patient_id` grouping field, and every fold is checked to ensure that no patient contributes to both training and testing partitions. The current benchmark uses `Baseline_Score` as its sole predictor. The framework reports precision, recall, F1-score, and AUC-ROC per fold and retains the fitted coefficient for each split so that its direction and cross-fold consistency can be audited.
+`GroupKFold` partitions by patient identifier, and an explicit overlap check
+guards every train/test split. The included single-feature ElasticNet logistic
+regression is an execution harness: it verifies preprocessing, fitting,
+reporting, and figure generation across the complete pipeline. It is not an
+optimized clinical predictor and must not be interpreted as a diagnostic or
+decision-support model.
 
-This methodology prioritises interpretability and methodological validity over predictive discrimination alone. By providing explicit longitudinal-to-fixed-horizon mapping, auditable follow-up attrition, and strict patient-level isolation, the pipeline establishes a reproducible basis for future patient stratification studies and clinically responsible evaluation of candidate prognostic markers.
-
-PPMI-Pipeline is a reproducible Python workflow for fixed-horizon prognostic modelling with Parkinson's Progression Markers Initiative (PPMI) clinical data. It converts longitudinal clinical observations into patient-level progression targets, applies patient-isolated validation, and reports clinically interpretable feature stability.
+The framework prioritizes inspectable software behavior, deterministic data
+transformation, automated tests, configuration control, and run provenance.
+Synthetic fixtures allow public verification without redistribution of
+controlled PPMI data.
 
 ## Project Enhancements (July 2026)
 
@@ -43,23 +58,37 @@ PPMI-Pipeline is a reproducible Python workflow for fixed-horizon prognostic mod
 
 The codebase is organised as modular, type-hinted components with explicit schema validation, error handling, and reproducible defaults. `etl.py` validates and normalises PPMI exports; `adapter.py` harmonises the configured clinical score and visit date fields; and `data_utils.py` converts long-format observations into patient-level baseline, target, and delta records while reporting follow-up attrition.
 
-`validation.py` applies `GroupKFold` with explicit `patient_id` isolation, `modeling.py` fits ElasticNet logistic-regression baselines and records coefficient stability, and `visualization.py` generates publication-quality stability and coefficient figures. Earlier Random Forest endpoint-delta components are preserved in `legacy/` and are not executed by the canonical pipeline. Together, the active modules support inspectable, reproducible clinical research rather than diagnostic use.
+`validation.py` applies `GroupKFold` with explicit `patient_id` isolation,
+`modeling.py` runs a deliberately minimal ElasticNet execution harness, and
+`visualization.py` produces diagnostic figures from its fold reports. Earlier
+Random Forest endpoint-delta components are preserved in `legacy/` and are not
+executed by the canonical pipeline. Together, the active modules implement an
+inspectable software and computational-methodology framework rather than a
+clinical prediction product.
 
 ## Statement of need
 
-Longitudinal Parkinson's disease studies require analysis that respects the fact that multiple visits belong to the same participant. Common row-level splits can place observations from one person in both training and test sets, leading to overly optimistic performance estimates. PPMI-Pipeline provides a compact, inspectable implementation that:
+Longitudinal research software must preserve patient identity, temporal
+ordering, schema assumptions, and cohort decisions across every processing
+stage. One-off scripts commonly hide these contracts and can accidentally
+place records from the same participant in both training and test data.
+PPMI-Pipeline provides a compact, inspectable implementation that:
 
 * identifies an earliest usable BL baseline and a fixed-horizon follow-up visit;
 * constructs auditable baseline, target, delta, and binary progression-label data;
 * uses `patient_id`-grouped `GroupKFold` splitting to prevent participant leakage;
 * performs median imputation and standardisation inside each training fold; and
-* records reproducible fold metrics, coefficients, stability reports, and figures.
+* records reproducible fold diagnostics, coefficients, audit reports, and figures.
 
-The repository is intended for clinical research and method development. It is not a diagnostic device and must not be used as a substitute for clinical judgment.
+The repository is intended for software verification, data-engineering
+research, and computational-method development. The included model is an
+execution harness, not a diagnostic device or substitute for clinical
+judgment.
 
 ## Installation
 
-Python 3.10 or later is recommended.
+Python 3.12 through 3.14 is supported, matching the interpreter constraint in
+`pyproject.toml`.
 
 ```bash
 git clone https://github.com/farishaq626-cloud/parkinsons_pipeline.git
@@ -76,7 +105,22 @@ Activate the virtual environment, then install dependencies:
 # macOS/Linux
 source .venv/bin/activate
 
-pip install -r requirements.txt
+pip install -r requirements-lock.txt
+pip install -e . --no-deps
+```
+
+The editable installation exposes the namespaced `ppmi_pipeline` API and the
+`ppmi-pipeline` console command while retaining backward-compatible root
+modules and `python main.py`. `requirements-lock.txt` records the complete
+dependency graph used to validate v2.1.7; `requirements.txt` retains the
+smaller set of direct runtime pins for dependency review.
+
+Contributors can install the pinned formatting and linting tool with:
+
+```bash
+pip install -e ".[dev]"
+ruff format --check .
+ruff check .
 ```
 
 Download the appropriate PPMI curated export through the PPMI data portal and place it locally. PPMI data are governed by their own access and data-use agreement and are not redistributed with this repository.
@@ -84,8 +128,18 @@ Download the appropriate PPMI curated export through the PPMI data portal and pl
 ## Quick start
 
 1. Confirm your PPMI export contains the required columns: `PATNO`, `EVENT_ID`, `visit_date`, `moca`, and `updrs3_score`.
-2. Update `FIXED_HORIZON_CONFIG` in `config.py` to set `data_path`, `score_column`, the fixed horizon, its tolerance, and the progression threshold.
-3. Run the canonical fixed-horizon pipeline:
+2. Run the installed command with an explicit input path:
+
+   ```bash
+   ppmi-pipeline --data-path path/to/ppmi_export.csv
+   ```
+
+   Optional flags include `--sheet-name`, `--score-column`,
+   `--target-horizon-days`, `--window-tolerance-days`,
+   `--progression-threshold`, and `--n-splits`.
+
+3. For backward-compatible source execution, update
+   `FIXED_HORIZON_CONFIG` in `config.py`, then run:
 
    ```bash
    python main.py
@@ -100,8 +154,9 @@ python tests/generate_dummy_data.py
 ```
 
 The repository includes `tests/dummy_ppmi.csv`, containing 50 synthetic
-patients observed at BL, V01, and V02. The default `config.py` configuration
-uses this fixture; run the complete workflow with:
+patients observed at BL, V01, and V02. An identical fixture is packaged under
+`ppmi_pipeline/sample_data/` so installed and source executions share the same
+safe default. Run the complete workflow with:
 
 ```bash
 python main.py
@@ -111,9 +166,17 @@ python main.py
 
 The pipeline first performs a header-only schema validation before loading the full PPMI export. It normalises identifiers and visit dates, then adapts the configured clinical score into the fixed-horizon schema. For each participant, it selects the earliest usable BL record and the valid follow-up observation closest to the configured horizon within the configured tolerance window. The resulting patient-level data contain baseline score, target score, and score change; follow-up attrition is reported explicitly.
 
-Baseline-compatible numeric predictors are median-imputed and standardised within each training fold before ElasticNet logistic regression. A binary progression label is defined from the configured score-change threshold. `GroupKFold` groups strictly by patient, and each fold asserts that training and testing partitions share no participants.
+Baseline-compatible numeric fields are median-imputed and standardized within
+each training fold before the ElasticNet execution harness. A binary test
+target is defined from the configured score-change threshold. `GroupKFold`
+groups strictly by patient, and every fold raises an explicit error if training
+and testing partitions share a participant.
 
-The active fixed-horizon workflow reports precision, recall, F1-score, and AUC-ROC. It saves per-fold coefficients, a coefficient-consistency summary, a performance plot, and a cross-fold coefficient heatmap. The quarantined endpoint-delta workflow in `legacy/` is not executed by `main.py`.
+The active workflow reports fold-level diagnostic metrics and saves
+coefficients, a consistency summary, and visualization artifacts. These outputs
+demonstrate end-to-end execution and expose pipeline behavior; they are not
+claims of optimized clinical performance. The quarantined endpoint-delta
+workflow in `legacy/` is not executed by `main.py`.
 
 ## Testing
 

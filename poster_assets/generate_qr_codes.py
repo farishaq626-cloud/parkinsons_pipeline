@@ -7,7 +7,6 @@ from pathlib import Path
 import qrcode
 from qrcode.constants import ERROR_CORRECT_H
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIRECTORY = PROJECT_ROOT / "figures"
 QR_TARGETS = {

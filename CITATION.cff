@@ -10,7 +10,7 @@ url: "https://github.com/farishaq626-cloud/parkinsons_pipeline"
 identifiers:
   - type: doi
     value: "10.5281/zenodo.21225810"
-    description: "Archived software release"
-version: "2.1.6"
+    description: "Concept DOI for the project archive"
+version: "2.1.7"
 date-released: "2026-07-27"
 license: MIT

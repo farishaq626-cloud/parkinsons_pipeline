@@ -1,4 +1,4 @@
-"""Resolve and execute a provenance-checked real-data fixed-horizon run."""
+"""Resolve and execute a provenance-checked fixed-horizon reference run."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import argparse
 import copy
 import json
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -14,8 +14,7 @@ from config import DEFAULT_RESULTS_DIR, FIXED_HORIZON_CONFIG
 from etl import PPMIDataLoader
 from exceptions import DataFileNotFoundError
 from main import run_pipeline
-from modeling import PrognosticModel
-
+from modeling import ExecutionHarnessModel
 
 RUN_LOG_PATTERN = re.compile(r"config:\s*\n(\{.*?\})\s*\nmetrics:", re.DOTALL)
 PROVENANCE_FILENAME = "real_run_provenance.json"
@@ -48,7 +47,9 @@ def resolve_latest_real_configuration(
     if data_path is not None:
         candidate = Path(data_path).expanduser().resolve()
         if _is_synthetic_path(candidate):
-            raise ValueError("Synthetic fixtures cannot be used for real-data poster assets.")
+            raise ValueError(
+                "Synthetic fixtures cannot be used for real-data poster assets."
+            )
         config = _build_real_config(candidate, sheet_name)
         return config, None
 
@@ -80,7 +81,7 @@ def resolve_latest_real_configuration(
 def run_real_fixed_horizon_pipeline(
     data_path: str | Path | None = None,
     sheet_name: str | int | None = None,
-) -> tuple[PrognosticModel, dict[str, Any]]:
+) -> tuple[ExecutionHarnessModel, dict[str, Any]]:
     """Run the canonical pipeline and persist non-synthetic run provenance.
 
     Args:
@@ -88,7 +89,7 @@ def run_real_fixed_horizon_pipeline(
         sheet_name: Optional Excel worksheet override.
 
     Returns:
-        The fitted prognostic model and a provenance record for its reports.
+        The fitted execution harness and a provenance record for its reports.
 
     Raises:
         DataFileNotFoundError: If no valid non-synthetic input can be resolved.
@@ -113,10 +114,12 @@ def run_real_fixed_horizon_pipeline(
             if source_run_log is not None
             else None
         ),
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": datetime.now(UTC).isoformat(),
     }
     provenance_path = Path(real_config["modeling_results_dir"]) / PROVENANCE_FILENAME
-    provenance_path.write_text(json.dumps(provenance, indent=2) + "\n", encoding="utf-8")
+    provenance_path.write_text(
+        json.dumps(provenance, indent=2) + "\n", encoding="utf-8"
+    )
     return model, provenance
 
 
@@ -143,7 +146,9 @@ def load_real_run_provenance(
         )
     provenance = json.loads(path.read_text(encoding="utf-8"))
     if provenance.get("input_classification") != "non_synthetic":
-        raise ValueError("Poster figures require reports generated from non-synthetic data.")
+        raise ValueError(
+            "Poster figures require reports generated from non-synthetic data."
+        )
     return provenance
 
 
@@ -154,9 +159,13 @@ def _build_real_config(
     """Copy canonical settings and validate a non-synthetic input header."""
     candidate = candidate.resolve()
     if not candidate.exists():
-        raise DataFileNotFoundError(f"Resolved clinical input was not found: {candidate}")
+        raise DataFileNotFoundError(
+            f"Resolved clinical input was not found: {candidate}"
+        )
     if _is_synthetic_path(candidate):
-        raise ValueError("Synthetic fixtures cannot be used for real-data poster assets.")
+        raise ValueError(
+            "Synthetic fixtures cannot be used for real-data poster assets."
+        )
     selected_sheet = 0 if sheet_name is None else sheet_name
     PPMIDataLoader().validate_file_schema(candidate, sheet_name=selected_sheet)
     config = copy.deepcopy(FIXED_HORIZON_CONFIG)
@@ -179,7 +188,11 @@ def _read_logged_config(run_log: Path) -> dict[str, Any]:
 def _is_synthetic_path(path: Path) -> bool:
     """Return whether a path points to the repository's synthetic test fixture."""
     parts = {part.lower() for part in path.parts}
-    return "tests" in parts or "dummy" in path.name.lower() or "synthetic" in path.name.lower()
+    return (
+        "tests" in parts
+        or "dummy" in path.name.lower()
+        or "synthetic" in path.name.lower()
+    )
 
 
 def main() -> None:

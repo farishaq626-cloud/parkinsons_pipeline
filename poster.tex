@@ -1,4 +1,4 @@
-% PPMI-Pipeline v2.1.6 poster source.
+% PPMI-Pipeline v2.1.7 poster source.
 % Compile with pdfLaTeX, LuaLaTeX, or XeLaTeX.
 % Required local theme files:
 %   beamerthemegemini.sty
@@ -11,14 +11,14 @@
   author       = {{Parkinson's Progression Markers Initiative}},
   title        = {{Parkinson's Progression Markers Initiative (PPMI) database}},
   year         = {2026},
-  howpublished = {\url{https://www.ppmi-info.org/access-data-specimens/download-data}},
+  howpublished = {PPMI data portal},
   note         = {RRID:SCR\_006431}
 }
 
 @inproceedings{mckinney2010,
   author    = {McKinney, Wes},
-  title     = {Data Structures for Statistical Computing in Python},
-  booktitle = {Proceedings of the 9th Python in Science Conference},
+  title     = {Data Structures for Statistical Computing in {Python}},
+  booktitle = {Proceedings of the 9th {Python} in Science Conference},
   pages     = {56--61},
   year      = {2010},
   doi       = {10.25080/Majora-92bf1922-00a}
@@ -31,7 +31,7 @@
              and Dubourg, Vincent and Vanderplas, Jake and Passos, Alexandre
              and Cournapeau, David and Brucher, Matthieu and Perrot, Matthieu
              and Duchesnay, {\'{E}douard}},
-  title   = {Scikit-learn: Machine Learning in Python},
+  title   = {Scikit-learn: Machine Learning in {Python}},
   journal = {Journal of Machine Learning Research},
   volume  = {12},
   number  = {85},
@@ -50,14 +50,11 @@
 \usecolortheme{gemini}
 
 \usepackage{graphicx}
-\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
 \usepackage[numbers]{natbib}
 \usepackage{url}
-\usepackage{tikz}
-\usepackage{pgfplots}
-\usepackage{anyfontsize}
 
-\pgfplotsset{compat=1.14}
 \graphicspath{{figures/}{./}}
 \pdfstringdefDisableCommands{%
   \def\translate#1{#1}%
@@ -67,11 +64,11 @@
 \setbeamerfont{title in headline}{series=\bfseries,size=\fontsize{50}{56}}
 \setbeamerfont{author in headline}{size=\fontsize{27}{32}}
 \setbeamerfont{institute in headline}{size=\fontsize{21}{26}}
-\setbeamerfont{block title}{series=\bfseries,size=\fontsize{27}{32}}
-\setbeamerfont{block body}{size=\fontsize{21}{27}}
+\setbeamerfont{block title}{series=\bfseries,size=\fontsize{30}{36}}
+\setbeamerfont{block body}{size=\fontsize{24}{31}}
 \setbeamerfont{caption}{size=\fontsize{15}{19}}
-\setbeamercolor{metrics box}{fg=white,bg=geminiTeal}
-\setbeamerfont{metrics box}{series=\bfseries,size=\fontsize{20}{25}}
+\setbeamercolor{architecture note}{fg=white,bg=geminiTeal}
+\setbeamerfont{architecture note}{series=\bfseries,size=\fontsize{18}{23}}
 
 % Three-column layout: (N + 1) * sepwidth + N * colwidth = paperwidth.
 \newlength{\sepwidth}
@@ -80,7 +77,7 @@
 \setlength{\colwidth}{0.3\paperwidth}
 \newcommand{\separatorcolumn}{\begin{column}{\sepwidth}\end{column}}
 
-\title{Reproducible Fixed-Horizon Prognostic Modelling of Parkinson's Disease Using Longitudinal PPMI Data}
+\title{PPMI-Pipeline: A Reproducible Python Framework for Auditable Fixed-Horizon Longitudinal Modelling}
 \author{Faris Haq}
 \institute{Data Science \& Biomedical Research}
 
@@ -99,26 +96,30 @@
 \begin{block}{Objective}
 \begin{itemize}
   \setlength{\itemsep}{0.35em}
-  \item \textbf{Clinical gap:} Longitudinal Parkinson's datasets are often analysed through opaque, one-off workflows with unclear cohort selection and temporal definitions.
-  \item \textbf{Methodological risk:} Row-level evaluation can place observations from the same patient in both training and testing data, producing information leakage.
-  \item \textbf{Aim:} Develop an auditable, reproducible fixed-horizon pipeline for prognostic modelling using PPMI clinical data \citep{ppmi_dataset}.
-  \item \textbf{Scope:} Support transparent methodological research and patient stratification studies, not clinical diagnosis or treatment decisions.
+  \item \textbf{Software gap:} Longitudinal clinical analyses are often assembled as one-off scripts with implicit schemas, cohort rules, and temporal definitions that are difficult to audit or reproduce.
+  \item \textbf{Computational risk:} Row-level evaluation can place observations from the same patient in both training and testing data, while undocumented preprocessing obscures the source of analytical outputs.
+  \item \textbf{Primary contribution:} Deliver an open-source, configuration-driven Python architecture that makes ingestion, schema harmonisation, fixed-horizon construction, validation, modelling, and reporting explicit and testable.
+  \item \textbf{Reference implementation:} PPMI clinical data provide the longitudinal use case \citep{ppmi_dataset}; the contribution is the reproducible computational method, not a clinical diagnostic or decision-support system.
 \end{itemize}
 \end{block}
+
+\vspace{1cm}
 
 \begin{block}{Methods}
 \begin{itemize}
   \setlength{\itemsep}{0.35em}
-  \item \textbf{Modular workflow:} \texttt{etl.py} validates and normalises PPMI exports; schema harmonisation standardises patient, visit, score, and date fields.
-  \item \textbf{Fixed-horizon design:} The earliest usable baseline (BL) is identified for each patient, then the eligible follow-up nearest the prespecified horizon is selected.
-  \item \textbf{Outcome construction:} Patient-level baseline score, target score, and score-change records are created; follow-up exclusions are explicitly recorded.
-  \item \textbf{Modelling:} ElasticNet-regularised logistic regression implemented with scikit-learn \citep{pedregosa2011} predicts a configured binary progression label. The current baseline benchmark uses \texttt{Baseline\_Score} as its sole predictor.
-  \item \textbf{Configuration:} Horizon, tolerance window, score endpoint, progression threshold, and model settings are version-controlled.
+  \item \textbf{Modular architecture:} \texttt{etl.py} validates and normalises source exports; \texttt{adapter.py} applies configuration-driven schema harmonisation for patient, visit, score, and date fields.
+  \item \textbf{Fixed-horizon engine:} The earliest usable baseline (BL) is paired with the eligible follow-up nearest the configured horizon; baseline, target, score-change, and explicit exclusion records are generated.
+  \item \textbf{Execution harness:} ElasticNet-regularised logistic regression implemented with scikit-learn \citep{pedregosa2011} uses \texttt{Baseline\_Score} as its sole predictor. It is a structural smoke test of end-to-end execution, not an optimized clinical predictor.
+  \item \textbf{Validation by construction:} GroupKFold partitions by patient identifier, and every fold is programmatically audited for train/test patient overlap.
+  \item \textbf{Configuration and provenance:} Horizon, tolerance, endpoint, label threshold, model settings, cohort counts, fold metrics, and generated artifacts are centrally configured and retained for audit.
 \end{itemize}
 \end{block}
 
+\vspace{1cm}
+
 \begin{block}{PPMI Data Acknowledgement}
-{\fontsize{13.5}{17}\selectfont
+{\fontsize{16}{20}\selectfont
 Data used in the preparation of this article was obtained on 2026-07-15 from
 the Parkinson's Progression Markers Initiative (PPMI) database
 (\href{https://www.ppmi-info.org/access-data-specimens/download-data}{%
@@ -146,75 +147,129 @@ Weston Family Foundation.
 \separatorcolumn
 
 % -----------------------------------------------------------------------------
-% Column 2: Results and empirical figures
+% Column 2: Software architecture and verification evidence
 % -----------------------------------------------------------------------------
 \begin{column}{\colwidth}
 
-\begin{block}{Results}
-\begin{itemize}
-  \setlength{\itemsep}{0.30em}
-  \item Cohort derivation records validated observations, baseline eligibility, fixed-horizon retention, and exclusions at each filtering stage.
-  \item Validation integrity and held-out performance are assessed across patient-isolated folds using AUC-ROC, precision, recall, and F1-score.
-  \item \texttt{Baseline\_Score} was the sole predictor. Its coefficient remained positive across all five folds; this indicates single-coefficient consistency, not multi-feature importance.
-  \item Low recall indicates limited sensitivity for progression detection at the current decision threshold.
-  \item Results are interpreted as a methodological benchmark, not as a clinically actionable decision-support model.
-\end{itemize}
+\begin{block}{End-to-End Software Architecture}
+The release exposes six explicit interfaces. Each stage consumes a documented
+contract and emits an auditable artifact for the next stage.
 
-\vspace{0.30cm}
+\vspace{0.45cm}
 
-\begin{beamercolorbox}[wd=\linewidth,rounded=true,shadow=false,sep=1.2ex,center]{metrics box}
-  {\fontsize{24}{29}\selectfont
-    \textbf{Retained cohort: $N = 2{,}875$}\quad
-    ($62.3\%$ of $4{,}616$ usable baseline patients)
-  }\\[0.45cm]
-  \begin{tabular}{@{}cccc@{}}
-    \textbf{AUC-ROC} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\
-    $0.695 \pm 0.023$ & $0.290 \pm 0.155$ & $0.034 \pm 0.016$ & $0.061 \pm 0.029$
-  \end{tabular}
+\begin{center}
+\begin{tikzpicture}[
+  pipeline/.style={
+    draw=geminiTeal,
+    fill=geminiTeal!9,
+    line width=1.4pt,
+    rounded corners=8pt,
+    minimum width=9.3cm,
+    minimum height=3.7cm,
+    text width=8.4cm,
+    align=center,
+    inner sep=0.35cm,
+    font=\fontsize{17}{21}\selectfont
+  },
+  flow/.style={
+    -{Latex[length=4.5mm,width=3.2mm]},
+    draw=geminiTeal,
+    line width=2.0pt,
+    shorten >=4pt,
+    shorten <=4pt
+  }
+]
+  \node[pipeline] (etl) at (-10.8,0) {
+    \textbf{1. ETL}\\
+    Header validation\\
+    Type normalization
+  };
+  \node[pipeline] (adapter) at (0,0) {
+    \textbf{2. Schema Adapter}\\
+    Configured field mapping\\
+    Stable column contract
+  };
+  \node[pipeline] (horizon) at (10.8,0) {
+    \textbf{3. Fixed-Horizon Builder}\\
+    Baseline selection\\
+    Follow-up and attrition audit
+  };
+  \node[pipeline] (validation) at (10.8,-7.0) {
+    \textbf{4. Validation Harness}\\
+    Patient-grouped folds\\
+    Explicit overlap guard
+  };
+  \node[pipeline] (model) at (0,-7.0) {
+    \textbf{5. Execution Model}\\
+    ElasticNet smoke test\\
+    Fold-local preprocessing
+  };
+  \node[pipeline] (reports) at (-10.8,-7.0) {
+    \textbf{6. Reports / Provenance}\\
+    Fold diagnostics\\
+    Coefficients and run artifacts
+  };
+
+  \draw[flow] (etl.east) -- (adapter.west);
+  \draw[flow] (adapter.east) -- (horizon.west);
+  \draw[flow] (horizon.south) -- (validation.north);
+  \draw[flow] (validation.west) -- (model.east);
+  \draw[flow] (model.west) -- (reports.east);
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.45cm}
+
+\begin{beamercolorbox}[
+  wd=\linewidth,
+  rounded=true,
+  shadow=false,
+  sep=1.3ex,
+  center
+]{architecture note}
+  Reproducibility boundary:
+  configuration $\rightarrow$ deterministic transformation $\rightarrow$
+  patient-isolated validation $\rightarrow$ retained evidence
 \end{beamercolorbox}
+\end{block}
 
-\vspace{0.30cm}
+\vspace{1cm}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.74\linewidth]{cohort_flow_diagram.pdf}
-  \caption{Cohort derivation from validated records to the fixed-horizon modelling cohort, including baseline eligibility, retained follow-up, and exclusions.}
-  \label{fig:cohort-flow}
-\end{figure}
+\begin{block}{Verification Evidence}
+\begin{itemize}
+  \setlength{\itemsep}{0.42em}
+  \item \textbf{Safety under optimization:} Critical validation checks raise explicit runtime exceptions and remain active under \texttt{python -O}; no execution-path safety rule relies on \texttt{assert}.
+  \item \textbf{Patient isolation:} Every GroupKFold partition invokes a train/test overlap guard before model fitting. The reference workflow completed all five folds with zero overlapping patient identifiers.
+  \item \textbf{Installability:} \texttt{pyproject.toml} defines the package, Python compatibility, pinned runtime dependencies, development tooling, console entry point, and synthetic package fixture.
+  \item \textbf{Automated verification:} Thirteen unit tests cover schema adaptation, fixed-horizon construction, target generation, model execution, patient isolation, report persistence, and visualisation.
+  \item \textbf{Transparent model scope:} The single-feature ElasticNet model is a technical execution harness used to verify end-to-end orchestration and report generation. It is not an optimized predictor or clinical performance claim.
+\end{itemize}
 
 \vspace{0.35cm}
 
-\begin{figure}
-  \centering
-  \begin{minipage}[t]{0.48\linewidth}
-    \centering
-    \includegraphics[width=\linewidth,height=6.5cm,keepaspectratio]{validation_audit.pdf}\\[-0.1cm]
-    {\scriptsize Patient-isolation audit}
-  \end{minipage}
-  \hfill
-  \begin{minipage}[t]{0.48\linewidth}
-    \centering
-    \includegraphics[width=\linewidth,height=6.5cm,keepaspectratio]{fold_performance.pdf}\\[-0.1cm]
-    {\scriptsize Held-out fold performance}
-  \end{minipage}
+\begin{center}
+{\fontsize{19}{24}\selectfont
+\textbf{Auditable evidence chain}\\[0.22cm]
+\texttt{schema} $\rightarrow$
+\texttt{configuration} $\rightarrow$
+\texttt{cohort counts} $\rightarrow$
+\texttt{fold audit} $\rightarrow$
+\texttt{reports}
+}
+\end{center}
 
-  \vspace{0.25cm}
+\end{block}
 
-  \begin{minipage}[t]{0.48\linewidth}
-    \centering
-    \includegraphics[width=\linewidth,height=6.5cm,keepaspectratio]{feature_stability.pdf}\\[-0.1cm]
-    {\scriptsize Feature stability}
-  \end{minipage}
-  \hfill
-  \begin{minipage}[t]{0.48\linewidth}
-    \centering
-    \includegraphics[width=\linewidth,height=6.5cm,keepaspectratio]{coefficient_heatmap_clustered.pdf}\\[-0.1cm]
-    {\scriptsize Coefficient direction across folds}
-  \end{minipage}
-  \caption{Validation integrity and model behaviour across patient-isolated folds. The audit confirms zero patient overlap; performance and coefficient panels show fold-level variation, directionality, and consistency.}
-  \label{fig:validation-performance}
-\end{figure}
+\vspace{1cm}
 
+\begin{block}{Reproducible Release Interface}
+\begin{itemize}
+  \setlength{\itemsep}{0.34em}
+  \item \textbf{Install:} \texttt{pip install -r requirements-lock.txt}, followed by \texttt{pip install -e . --no-deps}.
+  \item \textbf{Execute:} \texttt{ppmi-pipeline --data-path <export.csv>} invokes the canonical, configuration-validated workflow.
+  \item \textbf{Verify:} \texttt{python -m unittest discover -s tests -v} exercises the public synthetic fixture without controlled data.
+  \item \textbf{Inspect:} Logs, cohort summaries, fold audits, coefficients, and diagnostic figures provide a retained execution record.
+\end{itemize}
 \end{block}
 
 \end{column}
@@ -229,56 +284,60 @@ Weston Family Foundation.
 \begin{block}{Validation}
 \begin{itemize}
   \setlength{\itemsep}{0.35em}
-  \item \textbf{Patient isolation:} GroupKFold groups observations by patient identifier, preventing repeated-patient leakage across folds.
-  \item \textbf{Leakage audit:} Every fold is checked for train/test patient overlap; the real-data analysis confirmed zero overlapping patients.
-  \item \textbf{Automated testing:} All 13 unit tests passed, covering schema harmonisation, fixed-horizon construction, target creation, modelling, validation, and visualisation.
-  \item \textbf{Traceability:} Run provenance, cohort counts, fold metrics, coefficients, and generated figures are retained as reproducible artifacts.
+  \item \textbf{Patient isolation:} GroupKFold groups by patient identifier, and an explicit runtime exception prevents repeated-patient leakage across train/test partitions.
+  \item \textbf{Leakage audit:} Every fold is independently checked; the reference execution produced zero overlapping patient identifiers in all five folds.
+  \item \textbf{Automated quality assurance:} All 13 unit tests passed across schema adaptation, fixed-horizon construction, target creation, modelling, validation, and visualisation.
+  \item \textbf{Traceability:} Versioned configuration, run provenance, cohort counts, fold metrics, coefficients, and figure-generation scripts create an inspectable chain from input schema to output artifact.
 \end{itemize}
 \end{block}
+
+\vspace{0.8cm}
 
 \begin{block}{Conclusion}
 \begin{itemize}
   \setlength{\itemsep}{0.35em}
-  \item \textbf{Reproducibility:} The pipeline converts longitudinal PPMI preparation into a documented, version-controlled research protocol.
-  \item \textbf{Methodological validity:} Explicit baseline definitions, fixed-horizon follow-up selection, and patient-isolated validation reduce avoidable analytical bias.
-  \item \textbf{Clinical relevance:} Transparent prognostic modelling provides a more reliable foundation for future Parkinson's disease stratification research.
-  \item \textbf{Open science:} Shared code, synthetic tests, configuration, validation evidence, and figure-generation scripts enable inspection, reuse, and extension.
+  \item \textbf{Software contribution:} PPMI-Pipeline converts longitudinal data preparation and fixed-horizon modelling into a modular, documented, version-controlled computational protocol.
+  \item \textbf{Engineering assurance:} Explicit schemas, deterministic cohort rules, patient-isolated validation, automated tests, and provenance records reduce hidden analytical failure modes.
+  \item \textbf{Benchmark interpretation:} The single-predictor ElasticNet model demonstrates pipeline execution and leakage control only; it is not proposed for diagnosis, treatment, or clinical deployment.
+  \item \textbf{Open science:} Shared code, synthetic fixtures, centralized configuration, audit evidence, and figure-generation scripts support inspection, reuse, and extension to future methodological studies.
 \end{itemize}
 \end{block}
 
+\vspace{0.8cm}
+
 \begin{block}{References}
 \nocite{ppmi_dataset,mckinney2010,pedregosa2011}
-\footnotesize
+{\fontsize{15.5}{19.5}\selectfont
+\RaggedRight
 \bibliographystyle{plainnat}
 \bibliography{poster}
+}
 \end{block}
 
-% Deliberate breathing room places the metadata panel level with the
-% lower edge of the central results block on the 120 cm x 72 cm canvas.
-\vspace{11cm}
+\vspace{0.8cm}
 
 \begin{block}{Open Science \& Metadata}
 \begin{center}
-  \begin{minipage}[t]{0.46\linewidth}
+  \begin{minipage}[t]{0.43\linewidth}
     \centering
     \href{https://github.com/farishaq626-cloud/parkinsons_pipeline}{%
-      \includegraphics[width=5.0cm]{github_qr.png}%
+      \includegraphics[width=4.8cm]{github_qr.png}%
     }\\[0.25cm]
     \textbf{GitHub repository}
   \end{minipage}
   \hfill
-  \begin{minipage}[t]{0.46\linewidth}
+  \begin{minipage}[t]{0.43\linewidth}
     \centering
     \href{https://doi.org/10.5281/zenodo.21225810}{%
-      \includegraphics[width=5.0cm]{zenodo_qr.png}%
+      \includegraphics[width=4.8cm]{zenodo_qr.png}%
     }\\[0.25cm]
     \textbf{Zenodo archive}
   \end{minipage}
 
   \vspace{0.5cm}
 
-  \textbf{PPMI-Pipeline v2.1.6}\\[0.25cm]
-  {\fontsize{15}{19}\selectfont
+  \textbf{PPMI-Pipeline v2.1.7}\\[0.25cm]
+  {\fontsize{17}{21}\selectfont
     \href{https://github.com/farishaq626-cloud/parkinsons_pipeline}{%
       \texttt{github.com/farishaq626-cloud/parkinsons\_pipeline}%
     }\\

@@ -1,4 +1,4 @@
-"""Project-specific exceptions with clear clinical-pipeline error messages."""
+"""Project-specific exceptions with clear methodology-pipeline diagnostics."""
 
 
 class PPMIPipelineError(Exception):

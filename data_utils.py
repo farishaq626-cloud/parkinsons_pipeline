@@ -1,4 +1,4 @@
-"""Utilities for constructing fixed-horizon PPMI modelling datasets."""
+"""Utilities for constructing auditable fixed-horizon PPMI datasets."""
 
 from __future__ import annotations
 
@@ -9,7 +9,6 @@ from pandas.api.types import is_datetime64_any_dtype
 
 from config import DEFAULT_TARGET_HORIZON_DAYS, DEFAULT_WINDOW_TOLERANCE_DAYS
 from exceptions import MissingColumnError
-
 
 REQUIRED_FIXED_HORIZON_COLUMNS = {"PATNO", "EVENT_ID", "SCORE", "VISIT_DATE"}
 LOGGER = logging.getLogger("ppmi_pipeline.data_utils")
@@ -54,9 +53,8 @@ def create_fixed_horizon_dataset(
 
     working = df.copy()
     working["VISIT_DATE"] = pd.to_datetime(working["VISIT_DATE"], errors="coerce")
-    assert is_datetime64_any_dtype(working["VISIT_DATE"]), (
-        "VISIT_DATE must be converted to a datetime-compatible dtype."
-    )
+    if not is_datetime64_any_dtype(working["VISIT_DATE"]):
+        raise ValueError("VISIT_DATE must be converted to a datetime-compatible dtype.")
     working["EVENT_ID"] = working["EVENT_ID"].astype("string").str.strip().str.upper()
     working["SCORE"] = pd.to_numeric(working["SCORE"], errors="coerce")
 
@@ -65,8 +63,7 @@ def create_fixed_horizon_dataset(
     usable_baseline = (
         baseline_rows.dropna(subset=["VISIT_DATE", "SCORE"])
         .sort_values(["PATNO", "VISIT_DATE"], kind="stable")
-        .drop_duplicates("PATNO", keep="first")
-        [["PATNO", "VISIT_DATE", "SCORE"]]
+        .drop_duplicates("PATNO", keep="first")[["PATNO", "VISIT_DATE", "SCORE"]]
         .rename(
             columns={
                 "VISIT_DATE": "_baseline_date",
@@ -94,7 +91,9 @@ def create_fixed_horizon_dataset(
     upper_bound = target_horizon_days + window_tolerance
     candidates = aligned.loc[
         aligned["_days_from_baseline"].gt(0)
-        & aligned["_days_from_baseline"].between(lower_bound, upper_bound, inclusive="both")
+        & aligned["_days_from_baseline"].between(
+            lower_bound, upper_bound, inclusive="both"
+        )
     ].copy()
     candidates["_distance_from_horizon"] = (
         candidates["_days_from_baseline"] - target_horizon_days
@@ -105,16 +104,17 @@ def create_fixed_horizon_dataset(
             ["PATNO", "_distance_from_horizon", "VISIT_DATE", "EVENT_ID"],
             kind="stable",
         )
-        .drop_duplicates("PATNO", keep="first")
-        [["PATNO", "Baseline_Score", "SCORE"]]
+        .drop_duplicates("PATNO", keep="first")[["PATNO", "Baseline_Score", "SCORE"]]
         .rename(columns={"SCORE": "Target_Score"})
     )
     selected_targets["Delta_Score"] = (
         selected_targets["Target_Score"] - selected_targets["Baseline_Score"]
     )
-    result = selected_targets[
-        ["PATNO", "Baseline_Score", "Target_Score", "Delta_Score"]
-    ].sort_values("PATNO", kind="stable").reset_index(drop=True)
+    result = (
+        selected_targets[["PATNO", "Baseline_Score", "Target_Score", "Delta_Score"]]
+        .sort_values("PATNO", kind="stable")
+        .reset_index(drop=True)
+    )
 
     usable_baseline_count = int(usable_baseline["PATNO"].nunique())
     retained_patient_count = int(result["PATNO"].nunique())
@@ -153,7 +153,9 @@ def _validate_fixed_horizon_inputs(
         )
     if df["PATNO"].isna().all():
         raise ValueError("PATNO is present but contains no patient identifiers.")
-    if isinstance(target_horizon_days, bool) or not isinstance(target_horizon_days, int):
+    if isinstance(target_horizon_days, bool) or not isinstance(
+        target_horizon_days, int
+    ):
         raise ValueError("target_horizon_days must be a positive integer.")
     if target_horizon_days <= 0:
         raise ValueError("target_horizon_days must be a positive integer.")

@@ -17,7 +17,6 @@ from data_utils import create_fixed_horizon_dataset
 from etl import PPMIDataLoader
 from poster_assets.real_run import resolve_latest_real_configuration
 
-
 DEFAULT_OUTPUT_DIRECTORY = Path("results") / "poster_assets"
 
 
@@ -65,7 +64,11 @@ def collect_cohort_counts(config: dict[str, Any]) -> dict[str, int]:
     )
     baseline_patients = int(
         harmonized_data.loc[
-            harmonized_data["EVENT_ID"].astype("string").str.strip().str.upper().eq("BL"),
+            harmonized_data["EVENT_ID"]
+            .astype("string")
+            .str.strip()
+            .str.upper()
+            .eq("BL"),
             "PATNO",
         ].nunique()
     )
@@ -119,34 +122,33 @@ def create_cohort_flow_diagram(
     if dpi < 300:
         raise ValueError("dpi must be at least 300 for poster-quality output.")
 
-    figure, axis = plt.subplots(figsize=(11, 8.5), constrained_layout=True)
+    figure, axis = plt.subplots(figsize=(11.2, 8.6), constrained_layout=True)
     axis.set_axis_off()
     axis.set_xlim(0, 11)
     axis.set_ylim(0, 10)
 
     main_boxes = [
         (
-            1.8,
-            8.4,
+            1.4,
+            8.35,
             "Validated PPMI clinical visit records\n"
             f"n = {cohort_counts['validated_visit_records']:,} records; "
             f"{cohort_counts['unique_patients']:,} patients",
         ),
         (
-            1.8,
-            6.5,
-            "Patients with a BL event\n"
-            f"n = {cohort_counts['baseline_patients']:,}",
+            1.4,
+            6.35,
+            f"Patients with a BL event\nn = {cohort_counts['baseline_patients']:,}",
         ),
         (
-            1.8,
-            4.6,
+            1.4,
+            4.35,
             "Usable baseline patients\n"
             f"n = {cohort_counts['usable_baseline_patients']:,}",
         ),
         (
-            1.8,
-            2.7,
+            1.4,
+            2.35,
             "Final fixed-horizon modelling cohort\n"
             f"n = {cohort_counts['retained_patients']:,} patients",
         ),
@@ -154,43 +156,43 @@ def create_cohort_flow_diagram(
     for x_position, y_position, label in main_boxes:
         _draw_box(axis, x_position, y_position, label, facecolor="#E6F2F8")
 
-    _draw_arrow(axis, (3.6, 8.0), (3.6, 7.3), "Restrict to EVENT_ID = BL")
+    _draw_arrow(axis, (3.3, 7.82), (3.3, 6.88), "Restrict to EVENT_ID = BL")
     _draw_arrow(
         axis,
-        (3.6, 6.1),
-        (3.6, 5.4),
+        (3.3, 5.82),
+        (3.3, 4.88),
         "Require PATNO, VISIT_DATE, and SCORE",
     )
     _draw_arrow(
         axis,
-        (3.6, 4.2),
-        (3.6, 3.5),
+        (3.3, 3.82),
+        (3.3, 2.88),
         "Select closest follow-up within "
-        f"{target_horizon_days} ± {window_tolerance_days} days",
+        f"{target_horizon_days} $\\pm$ {window_tolerance_days} days",
     )
 
     _draw_box(
         axis,
-        6.2,
-        4.6,
+        6.4,
+        4.35,
         "Excluded: invalid baseline\n"
         f"n = {cohort_counts['excluded_invalid_baseline']:,}",
         facecolor="#FCE8E6",
     )
     _draw_box(
         axis,
-        6.2,
-        2.7,
+        6.4,
+        2.35,
         "Excluded: no usable follow-up\n"
         f"within horizon window\nn = {cohort_counts['excluded_missing_follow_up']:,}",
         facecolor="#FCE8E6",
     )
-    _draw_side_arrow(axis, (5.4, 5.0), (6.2, 5.0))
-    _draw_side_arrow(axis, (5.4, 3.1), (6.2, 3.1))
+    _draw_side_arrow(axis, (5.38, 4.35), (6.22, 4.35))
+    _draw_side_arrow(axis, (5.38, 2.35), (6.22, 2.35))
 
     axis.text(
         5.5,
-        9.5,
+        9.55,
         "Fixed-Horizon PPMI Cohort Flow",
         ha="center",
         va="center",
@@ -199,7 +201,7 @@ def create_cohort_flow_diagram(
     )
     axis.text(
         5.5,
-        0.8,
+        0.62,
         "Counts are generated from the canonical ETL, schema-harmonisation, "
         "and fixed-horizon dataset-construction workflow.",
         ha="center",
@@ -212,8 +214,12 @@ def create_cohort_flow_diagram(
     destination.mkdir(parents=True, exist_ok=True)
     png_path = destination / "cohort_flow_diagram.png"
     pdf_path = destination / "cohort_flow_diagram.pdf"
-    figure.savefig(png_path, dpi=dpi, bbox_inches="tight", facecolor="white")
-    figure.savefig(pdf_path, dpi=dpi, bbox_inches="tight", facecolor="white")
+    figure.savefig(
+        png_path, dpi=dpi, bbox_inches="tight", pad_inches=0.16, facecolor="white"
+    )
+    figure.savefig(
+        pdf_path, dpi=dpi, bbox_inches="tight", pad_inches=0.16, facecolor="white"
+    )
     plt.close(figure)
     return png_path, pdf_path
 
@@ -227,16 +233,18 @@ def _draw_box(
 ) -> None:
     """Draw one labelled cohort-flow box."""
     box = FancyBboxPatch(
-        (x_position, y_position - 0.4),
-        3.6,
-        0.8,
-        boxstyle="round,pad=0.08,rounding_size=0.08",
+        (x_position, y_position - 0.45),
+        3.8,
+        0.9,
+        boxstyle="round,pad=0.10,rounding_size=0.09",
         facecolor=facecolor,
         edgecolor="#3A3A3A",
         linewidth=1.0,
     )
     axis.add_patch(box)
-    axis.text(x_position + 1.8, y_position, label, ha="center", va="center", fontsize=12)
+    axis.text(
+        x_position + 1.9, y_position, label, ha="center", va="center", fontsize=12
+    )
 
 
 def _draw_arrow(
@@ -247,9 +255,24 @@ def _draw_arrow(
 ) -> None:
     """Draw a vertical transition arrow and its inclusion criterion."""
     axis.add_patch(
-        FancyArrowPatch(start, end, arrowstyle="->", mutation_scale=13, linewidth=1.2)
+        FancyArrowPatch(
+            start,
+            end,
+            arrowstyle="-|>",
+            mutation_scale=13,
+            linewidth=1.2,
+            shrinkA=2,
+            shrinkB=2,
+        )
     )
-    axis.text(3.8, (start[1] + end[1]) / 2, label, ha="left", va="center", fontsize=10)
+    axis.text(
+        start[0] + 0.25,
+        (start[1] + end[1]) / 2,
+        label,
+        ha="left",
+        va="center",
+        fontsize=10,
+    )
 
 
 def _draw_side_arrow(
@@ -262,10 +285,12 @@ def _draw_side_arrow(
         FancyArrowPatch(
             start,
             end,
-            arrowstyle="->",
+            arrowstyle="-|>",
             mutation_scale=13,
             linewidth=1.2,
             color="#A33A2B",
+            shrinkA=2,
+            shrinkB=2,
         )
     )
 

@@ -1,4 +1,4 @@
-"""Tests for the interpretable baseline prognostic model."""
+"""Tests for the interpretable ElasticNet execution harness."""
 
 import tempfile
 import unittest
@@ -35,9 +35,18 @@ class PrognosticModelTests(unittest.TestCase):
         )
 
         self.assertEqual(len(model.fold_metrics_), 3)
-        self.assertEqual(set(model.fold_metrics_.columns), {
-            "fold", "train_patients", "test_patients", "precision", "recall", "f1_score", "auc_roc"
-        })
+        self.assertEqual(
+            set(model.fold_metrics_.columns),
+            {
+                "fold",
+                "train_patients",
+                "test_patients",
+                "precision",
+                "recall",
+                "f1_score",
+                "auc_roc",
+            },
+        )
         self.assertEqual(set(model.fold_coefficients_["fold"]), {1, 2, 3})
         self.assertNotIn("Target_Score", set(model.fold_coefficients_["feature"]))
         self.assertNotIn("Delta_Score", set(model.fold_coefficients_["feature"]))

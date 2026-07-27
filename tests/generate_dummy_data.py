@@ -4,15 +4,14 @@ Run from the repository root with:
     python tests/generate_dummy_data.py
 """
 
-from pathlib import Path
 import logging
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from config import DEFAULT_DUMMY_DATA_CONFIG, DEFAULT_DUMMY_DATA_PATH
 from logging_config import configure_logging
-
 
 LOGGER = logging.getLogger("ppmi_pipeline.tests.generate_dummy_data")
 RANDOM_SEED = DEFAULT_DUMMY_DATA_CONFIG["random_seed"]
@@ -42,14 +41,40 @@ def generate_dummy_data(output_path: str | Path | None = None) -> Path:
         baseline_upsit = int(rng.integers(12, 37))
         baseline_moca = int(rng.integers(20, 31))
         baseline_updrs = int(rng.integers(5, 46))
-        baseline_date = pd.Timestamp("2020-01-01") + pd.Timedelta(days=int(rng.integers(0, 365)))
+        baseline_date = pd.Timestamp("2020-01-01") + pd.Timedelta(
+            days=int(rng.integers(0, 365))
+        )
 
         for visit_index, (event_id, days_from_baseline) in enumerate(VISITS):
-            moca = int(np.clip(baseline_moca - visit_index * rng.uniform(0.2, 1.8) + rng.normal(0, 1.0), 0, 30))
-            updrs = int(np.clip(baseline_updrs + visit_index * rng.uniform(2.0, 8.0) + rng.normal(0, 3.0), 0, 100))
+            moca = int(
+                np.clip(
+                    baseline_moca
+                    - visit_index * rng.uniform(0.2, 1.8)
+                    + rng.normal(0, 1.0),
+                    0,
+                    30,
+                )
+            )
+            updrs = int(
+                np.clip(
+                    baseline_updrs
+                    + visit_index * rng.uniform(2.0, 8.0)
+                    + rng.normal(0, 3.0),
+                    0,
+                    100,
+                )
+            )
             visit_age = age + days_from_baseline / 365.25
             duration = round(baseline_duration + days_from_baseline / 365.25, 2)
-            upsit = int(np.clip(baseline_upsit - visit_index * rng.uniform(0.0, 1.2) + rng.normal(0, 1.0), 0, 40))
+            upsit = int(
+                np.clip(
+                    baseline_upsit
+                    - visit_index * rng.uniform(0.0, 1.2)
+                    + rng.normal(0, 1.0),
+                    0,
+                    40,
+                )
+            )
             visit_date = baseline_date + pd.Timedelta(days=days_from_baseline)
 
             records.append(

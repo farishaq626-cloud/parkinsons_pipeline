@@ -1,4 +1,4 @@
-"""Create poster-ready figures from canonical fixed-horizon model reports."""
+"""Create poster-ready diagnostics from canonical fixed-horizon reports."""
 
 from __future__ import annotations
 
@@ -17,7 +17,6 @@ from config import MODELING_RESULTS_DIR
 from exceptions import DataFileNotFoundError, MissingColumnError
 from poster_assets.real_run import load_real_run_provenance
 
-
 DEFAULT_OUTPUT_DIRECTORY = Path("results") / "poster_assets"
 POSTER_DPI = 300
 POSTER_FONT_SCALE = 1.3
@@ -25,10 +24,10 @@ COLOURBLIND_BLUE = "#0072B2"
 COLOURBLIND_ORANGE = "#D55E00"
 
 
-def load_model_reports(results_directory: str | Path = MODELING_RESULTS_DIR) -> tuple[
-    pd.DataFrame, pd.DataFrame, pd.DataFrame
-]:
-    """Load the three report files emitted by ``PrognosticModel.save_reports``.
+def load_model_reports(
+    results_directory: str | Path = MODELING_RESULTS_DIR,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Load the three reports emitted by ``ExecutionHarnessModel.save_reports``.
 
     Args:
         results_directory: Directory containing ``fold_metrics.csv``,
@@ -237,7 +236,9 @@ def plot_coefficient_heatmap(
         Paths to PNG and PDF output files, in that order.
     """
     _require_columns(fold_coefficients, {"fold", "feature"}, "fold coefficients")
-    _require_columns(feature_stability, {"feature", "stability_rate"}, "feature stability")
+    _require_columns(
+        feature_stability, {"feature", "stability_rate"}, "feature stability"
+    )
     _validate_dpi(dpi)
     coefficient_column = _coefficient_column(fold_coefficients)
     matrix = fold_coefficients.pivot_table(
@@ -282,8 +283,20 @@ def plot_coefficient_heatmap(
             fontweight="bold",
             fontsize=17,
         )
-        cluster_grid.fig.savefig(png_path, dpi=dpi, bbox_inches="tight", facecolor="white")
-        cluster_grid.fig.savefig(pdf_path, dpi=dpi, bbox_inches="tight", facecolor="white")
+        cluster_grid.fig.savefig(
+            png_path,
+            dpi=dpi,
+            bbox_inches="tight",
+            pad_inches=0.14,
+            facecolor="white",
+        )
+        cluster_grid.fig.savefig(
+            pdf_path,
+            dpi=dpi,
+            bbox_inches="tight",
+            pad_inches=0.14,
+            facecolor="white",
+        )
         plt.close(cluster_grid.fig)
     else:
         figure, axis = plt.subplots(
@@ -309,8 +322,20 @@ def plot_coefficient_heatmap(
             fontweight="bold",
             fontsize=17,
         )
-        figure.savefig(png_path, dpi=dpi, bbox_inches="tight", facecolor="white")
-        figure.savefig(pdf_path, dpi=dpi, bbox_inches="tight", facecolor="white")
+        figure.savefig(
+            png_path,
+            dpi=dpi,
+            bbox_inches="tight",
+            pad_inches=0.14,
+            facecolor="white",
+        )
+        figure.savefig(
+            pdf_path,
+            dpi=dpi,
+            bbox_inches="tight",
+            pad_inches=0.14,
+            facecolor="white",
+        )
         plt.close(figure)
     return png_path, pdf_path
 
@@ -352,8 +377,20 @@ def _save_figure(
     destination.mkdir(parents=True, exist_ok=True)
     png_path = destination / f"{stem}.png"
     pdf_path = destination / f"{stem}.pdf"
-    figure.savefig(png_path, dpi=dpi, bbox_inches="tight", facecolor="white")
-    figure.savefig(pdf_path, dpi=dpi, bbox_inches="tight", facecolor="white")
+    figure.savefig(
+        png_path,
+        dpi=dpi,
+        bbox_inches="tight",
+        pad_inches=0.14,
+        facecolor="white",
+    )
+    figure.savefig(
+        pdf_path,
+        dpi=dpi,
+        bbox_inches="tight",
+        pad_inches=0.14,
+        facecolor="white",
+    )
     plt.close(figure)
     return png_path, pdf_path
 

@@ -19,7 +19,6 @@ from main import create_progression_label
 from poster_assets.real_run import resolve_latest_real_configuration
 from validation import ValidationFramework
 
-
 DEFAULT_OUTPUT_DIRECTORY = Path("results") / "poster_assets"
 
 
@@ -136,11 +135,13 @@ def plot_validation_audit(
     if missing_columns:
         raise ValueError("Validation audit is missing: " + ", ".join(missing_columns))
     if audit_table["overlapping_patients"].ne(0).any():
-        raise ValueError("Cannot plot a passing integrity panel when overlap is non-zero.")
+        raise ValueError(
+            "Cannot plot a passing integrity panel when overlap is non-zero."
+        )
     if dpi < 300:
         raise ValueError("dpi must be at least 300 for poster-quality output.")
 
-    figure, axis = plt.subplots(figsize=(8.5, 4.8), constrained_layout=True)
+    figure, axis = plt.subplots(figsize=(8.6, 5.0), constrained_layout=True)
     axis.set_axis_off()
     table = axis.table(
         cellText=audit_table.astype(int).values,
@@ -159,6 +160,7 @@ def plot_validation_audit(
     table.set_fontsize(12)
     table.scale(1.0, 1.65)
     for (row_index, _), cell in table.get_celld().items():
+        cell.PAD = 0.10
         cell.set_edgecolor("#D0D0D0")
         if row_index == 0:
             cell.set_facecolor("#DCEEF7")
@@ -186,8 +188,12 @@ def plot_validation_audit(
     destination.mkdir(parents=True, exist_ok=True)
     png_path = destination / "validation_audit.png"
     pdf_path = destination / "validation_audit.pdf"
-    figure.savefig(png_path, dpi=dpi, bbox_inches="tight", facecolor="white")
-    figure.savefig(pdf_path, dpi=dpi, bbox_inches="tight", facecolor="white")
+    figure.savefig(
+        png_path, dpi=dpi, bbox_inches="tight", pad_inches=0.16, facecolor="white"
+    )
+    figure.savefig(
+        pdf_path, dpi=dpi, bbox_inches="tight", pad_inches=0.16, facecolor="white"
+    )
     plt.close(figure)
     return png_path, pdf_path
 

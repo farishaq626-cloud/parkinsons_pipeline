@@ -50,7 +50,9 @@ class FixedHorizonDatasetTests(unittest.TestCase):
         df = pd.DataFrame({"PATNO": [1], "EVENT_ID": ["BL"]})
 
         with self.assertRaisesRegex(ValueError, "missing required columns"):
-            create_fixed_horizon_dataset(df, target_horizon_days=365, window_tolerance=90)
+            create_fixed_horizon_dataset(
+                df, target_horizon_days=365, window_tolerance=90
+            )
 
 
 if __name__ == "__main__":

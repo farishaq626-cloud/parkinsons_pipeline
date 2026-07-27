@@ -4,6 +4,7 @@ import unittest
 
 import pandas as pd
 
+import ppmi_pipeline
 from exceptions import ConfigurationError
 from main import create_progression_label, load_config
 
@@ -41,3 +42,11 @@ class MainPipelineTests(unittest.TestCase):
         self.assertIn("target_horizon_days", config)
         self.assertIn("progression_threshold", config)
         self.assertIn("logistic_regression", config)
+        self.assertIn("sheet_name", config)
+        self.assertIn("log_level", config)
+        self.assertEqual(ppmi_pipeline.__version__, "2.1.7")
+
+        incomplete = config.copy()
+        incomplete.pop("sheet_name")
+        with self.assertRaisesRegex(ConfigurationError, "sheet_name"):
+            load_config(incomplete)
