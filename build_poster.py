@@ -54,6 +54,27 @@ def find_bibtex() -> str | None:
     )
 
 
+def generate_qr_assets() -> None:
+    """Generate the poster QR assets from their canonical URLs.
+
+    Raises:
+        RuntimeError: If the QR-code dependency is unavailable or an asset
+            cannot be written.
+    """
+    try:
+        from poster_assets.generate_qr_codes import QR_TARGETS, generate_qr_code
+
+        output_directory = ROOT / "figures"
+        output_directory.mkdir(parents=True, exist_ok=True)
+        for filename, url in QR_TARGETS.items():
+            generate_qr_code(url, output_directory / filename)
+    except (ImportError, OSError) as error:
+        raise RuntimeError(
+            "Unable to generate poster QR assets. Install the pinned project "
+            "dependencies with 'pip install -r requirements-lock.txt' and retry."
+        ) from error
+
+
 def run(command: list[str]) -> None:
     """Run a build command and relay clear failure details.
 
@@ -122,6 +143,12 @@ def main() -> int:
             "then rerun: python build_poster.py",
             file=sys.stderr,
         )
+        return 1
+
+    try:
+        generate_qr_assets()
+    except RuntimeError as error:
+        print(f"ERROR: {error}", file=sys.stderr)
         return 1
 
     engine = find_engine()

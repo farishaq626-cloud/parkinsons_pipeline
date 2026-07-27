@@ -74,7 +74,7 @@ def resolve_latest_real_configuration(
 
     raise DataFileNotFoundError(
         "No validated non-synthetic input could be resolved. Supply --data-path "
-        "with an approved PPMI .csv, .xlsx, or .xls export."
+        "with an approved PPMI .csv or .xlsx export."
     )
 
 

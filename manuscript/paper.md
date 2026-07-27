@@ -17,6 +17,12 @@ version: 2.1.3
 bibliography: paper.bib
 ---
 
+> **Historical manuscript notice (v2.1.3).** This preserved draft documents
+> the superseded v2.1.3 workflow based on JSON configuration, Random Forest
+> modelling, and GroupShuffleSplit validation. It does not describe the
+> canonical v2.1.7 fixed-horizon methodology framework; consult the root
+> README and current source modules for the active software architecture.
+
 # Summary
 
 Parkinson's disease research frequently relies on longitudinal clinical data: repeated assessments of the same participant describing cognition, motor function, symptoms, and treatment over time. Preparing these data for analysis is labour-intensive. Research must identify eligible visits, harmonise variable types, determine a participant-specific baseline, handle incomplete measurements, and avoid evaluating models on visits from participants already represented in the training data. These steps are often implemented as one-off scripts, making them difficult to inspect, reproduce, or reuse.

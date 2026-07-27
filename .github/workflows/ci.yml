@@ -32,6 +32,11 @@ jobs:
           python -m ppmi_pipeline --version
           ppmi-pipeline --version
 
+      - name: Enforce linting and formatting
+        run: |
+          python -m ruff check .
+          python -m ruff format --check .
+
       - name: Run test suite
         env:
           MPLBACKEND: Agg

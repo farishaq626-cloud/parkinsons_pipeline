@@ -72,12 +72,12 @@ class PPMIDataLoader:
         path = Path(file_path)
         if not path.exists():
             raise DataFileNotFoundError(f"PPMI input file was not found: {path}")
-        if path.suffix.lower() in {".xlsx", ".xls"}:
+        if path.suffix.lower() == ".xlsx":
             headers = pd.read_excel(path, sheet_name=sheet_name, nrows=0).columns
         elif path.suffix.lower() == ".csv":
             headers = pd.read_csv(path, nrows=0).columns
         else:
-            raise ValueError("PPMI input must be an .xlsx, .xls, or .csv file.")
+            raise ValueError("PPMI input must be an .xlsx or .csv file.")
         self.validate_schema(pd.DataFrame(columns=headers))
 
     def load(self, file_path: str | Path, sheet_name: str | int = 0) -> pd.DataFrame:
@@ -97,7 +97,7 @@ class PPMIDataLoader:
         """
         self.validate_file_schema(file_path, sheet_name=sheet_name)
         path = Path(file_path)
-        if path.suffix.lower() in {".xlsx", ".xls"}:
+        if path.suffix.lower() == ".xlsx":
             df = pd.read_excel(path, sheet_name=sheet_name)
         else:
             df = pd.read_csv(path)
