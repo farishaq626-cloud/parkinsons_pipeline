@@ -4,7 +4,7 @@ import unittest
 
 import pandas as pd
 
-from validation import ValidationFramework
+from ppmi_pipeline.validation import ValidationFramework
 
 
 class ValidationFrameworkTests(unittest.TestCase):

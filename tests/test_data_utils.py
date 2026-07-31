@@ -4,7 +4,7 @@ import unittest
 
 import pandas as pd
 
-from data_utils import create_fixed_horizon_dataset
+from ppmi_pipeline.data_utils import create_fixed_horizon_dataset
 
 
 class FixedHorizonDatasetTests(unittest.TestCase):

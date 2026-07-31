@@ -1,0 +1,38 @@
+% Minimal self-contained Gemini-inspired Beamer poster theme.
+\ProvidesPackage{beamerthemegemini}[2026/07/26 Gemini-inspired poster theme]
+
+\RequirePackage{beamerinnerthemegemini}
+\RequirePackage{beamercolorthemegemini}
+\RequirePackage{ragged2e}
+
+\usefonttheme{professionalfonts}
+\setbeamertemplate{navigation symbols}{}
+\setbeamersize{text margin left=0pt,text margin right=0pt}
+\setbeamerfont{title in headline}{series=\bfseries,size=\fontsize{36}{42}}
+\setbeamerfont{author in headline}{size=\fontsize{20}{25}}
+\setbeamerfont{institute in headline}{size=\fontsize{16}{20}}
+\setbeamerfont{block title}{series=\bfseries,size=\fontsize{22}{27}}
+\setbeamerfont{block body}{size=\fontsize{16}{21}}
+\setbeamerfont{caption}{size=\fontsize{13}{16}}
+\setbeamerfont{bibliography entry author}{size=\fontsize{13.5}{17}}
+\setbeamerfont{bibliography entry title}{size=\fontsize{13.5}{17}}
+\setbeamerfont{bibliography entry location}{size=\fontsize{13.5}{17}}
+\setbeamerfont{bibliography entry note}{size=\fontsize{13.5}{17}}
+
+\setbeamertemplate{headline}{%
+  \begin{beamercolorbox}[wd=\paperwidth,sep=2.4ex,center]{headline}
+    \usebeamerfont{title in headline}\inserttitle\par
+    \vspace{0.7ex}
+    \usebeamerfont{author in headline}\insertauthor\par
+    \vspace{0.25ex}
+    \usebeamerfont{institute in headline}\insertinstitute\par
+  \end{beamercolorbox}%
+}
+
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[wd=\paperwidth,sep=1.05ex,center]{footline}
+    \usebeamerfont{footline}PPMI-Pipeline v2.1.8 \quad|\quad Open-source computational methodology framework
+  \end{beamercolorbox}%
+}
+
+\endinput

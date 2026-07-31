@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from visualization import ResultVisualizer
+from ppmi_pipeline.visualization import ResultVisualizer
 
 
 class ResultVisualizerTests(unittest.TestCase):

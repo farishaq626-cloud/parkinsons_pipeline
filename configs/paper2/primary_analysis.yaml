@@ -1,0 +1,26 @@
+extends: base.yaml
+
+# Snapshot, input path, endpoint state, and feature-domain mappings are inherited
+# from base.yaml to keep the real-data contract identical across experiments.
+
+task_grid:
+  horizons_months: [24]
+  tolerance_days: [90]
+  outcome_types: [continuous, binary]
+  progression_threshold: 5.0
+  feature_sets:
+    - [demographics_disease_history, baseline_motor, cognition_neuropsychology,
+       olfaction_sleep_autonomic, biofluid_biomarkers, imaging_dat_spect,
+       genetic_variables]
+
+validation:
+  imputation_strategies: [median]
+
+models:
+  elasticnet:
+    binary_parameter_grid:
+      C: [0.1, 1.0, 10.0]
+      l1_ratio: [0.1, 0.5, 0.9]
+    continuous_parameter_grid:
+      alpha: [0.001, 0.01, 0.1, 1.0]
+      l1_ratio: [0.1, 0.5, 0.9]

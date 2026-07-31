@@ -1,6 +1,6 @@
 {
   "data_path": "tests/dummy_ppmi.csv",
-  "sheet_name": "20260511",
+  "sheet_name": "DATA",
   "results_dir": "results",
   "patient_column": "PATNO",
   "baseline_events": ["BL", "V01"],

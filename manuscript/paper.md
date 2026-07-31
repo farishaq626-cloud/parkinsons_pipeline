@@ -20,7 +20,7 @@ bibliography: paper.bib
 > **Historical manuscript notice (v2.1.3).** This preserved draft documents
 > the superseded v2.1.3 workflow based on JSON configuration, Random Forest
 > modelling, and GroupShuffleSplit validation. It does not describe the
-> canonical v2.1.7 fixed-horizon methodology framework; consult the root
+> canonical v2.1.8 fixed-horizon methodology framework; consult the root
 > README and current source modules for the active software architecture.
 
 # Summary

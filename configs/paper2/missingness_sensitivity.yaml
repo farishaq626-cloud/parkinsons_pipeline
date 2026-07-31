@@ -1,0 +1,6 @@
+extends: primary_analysis.yaml
+
+# Real-data snapshot and schema settings are inherited from base.yaml.
+
+validation:
+  imputation_strategies: [median, most_frequent, constant]

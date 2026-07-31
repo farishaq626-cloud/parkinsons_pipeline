@@ -5,8 +5,8 @@ import unittest
 import pandas as pd
 
 import ppmi_pipeline
-from exceptions import ConfigurationError
-from main import create_progression_label, load_config
+from ppmi_pipeline.exceptions import ConfigurationError
+from ppmi_pipeline.main import create_progression_label, load_config
 
 
 class MainPipelineTests(unittest.TestCase):
@@ -44,7 +44,7 @@ class MainPipelineTests(unittest.TestCase):
         self.assertIn("logistic_regression", config)
         self.assertIn("sheet_name", config)
         self.assertIn("log_level", config)
-        self.assertEqual(ppmi_pipeline.__version__, "2.1.7")
+        self.assertEqual(ppmi_pipeline.__version__, "2.1.8")
 
         incomplete = config.copy()
         incomplete.pop("sheet_name")

@@ -1,0 +1,87 @@
+study:
+  name: ppmi_paper2
+  database_version: "${PPMI_DATABASE_VERSION}"
+  random_seed: 42
+
+data:
+  # Restricted inputs are supplied locally and never stored in version control.
+  path: "${PPMI_DATA_PATH}"
+  sheet_name: "${PPMI_SHEET_NAME}"
+  column_map:
+    PATNO: PATNO
+    EVENT_ID: EVENT_ID
+    VISIT_DATE: visit_date
+    DIAGNOSTIC_GROUP: COHORT
+    SCORE: updrs3_score
+  # The data dictionary defines updrs3_score as OFF/untreated MDS-UPDRS III.
+  column_constants:
+    MEDICATION_STATE: "OFF"
+
+cohort:
+  # The curated data dictionary defines COHORT=1 as PD Participant.
+  eligible_groups: ["1"]
+  baseline_event_ids: [BL]
+
+endpoint:
+  name: mds_updrs_iii
+  score_column: SCORE
+  required_medication_state: "OFF"
+  medication_state_column: MEDICATION_STATE
+  minimum_score: 0
+  maximum_score: 132
+
+task_grid:
+  horizons_months: [12, 24, 36]
+  tolerance_days: [90]
+  outcome_types: [continuous, binary]
+  progression_threshold: 5.0
+  feature_sets:
+    - [demographics_disease_history, baseline_motor]
+    - [demographics_disease_history, baseline_motor, cognition_neuropsychology]
+    - [demographics_disease_history, baseline_motor, cognition_neuropsychology,
+       olfaction_sleep_autonomic, biofluid_biomarkers, imaging_dat_spect,
+       genetic_variables]
+
+# These lists are intentionally explicit. Rename source fields in data.column_map
+# only for core fields; feature names must match the local curated export.
+feature_blocks:
+  demographics_disease_history: [age, SEX, EDUCYRS, duration]
+  baseline_motor: []
+  cognition_neuropsychology: [moca]
+  olfaction_sleep_autonomic: [upsit, scopa]
+  biofluid_biomarkers: [abeta, tau, ptau, asyn, NFL_CSF]
+  imaging_dat_spect: [MIA_CAUDATE_BILAT, MIA_PUTAMEN_BILAT, MIA_STRIATUM_BILAT]
+  genetic_variables: [APOE_e4]
+
+validation:
+  split_strategy: patient_isolated
+  methodological_negative_control: false
+  outer_splits: 5
+  outer_repeats: 5
+  inner_splits: 5
+  imputation_strategies: [median]
+  threshold_selection: youden
+  fixed_threshold: 0.5
+  bootstrap_resamples: 1000
+  confidence_level: 0.95
+
+models:
+  elasticnet:
+    binary_parameter_grid:
+      C: [0.1, 1.0, 10.0]
+      l1_ratio: [0.1, 0.5, 0.9]
+    continuous_parameter_grid:
+      alpha: [0.001, 0.01, 0.1, 1.0]
+      l1_ratio: [0.1, 0.5, 0.9]
+  random_forest:
+    binary_parameter_grid:
+      n_estimators: [300]
+      max_depth: [null, 8]
+      min_samples_leaf: [2, 5]
+    continuous_parameter_grid:
+      n_estimators: [300]
+      max_depth: [null, 8]
+      min_samples_leaf: [2, 5]
+
+output:
+  directory: results/paper2

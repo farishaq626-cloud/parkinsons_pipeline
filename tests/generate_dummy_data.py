@@ -10,8 +10,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from config import DEFAULT_DUMMY_DATA_CONFIG, DEFAULT_DUMMY_DATA_PATH
-from logging_config import configure_logging
+from ppmi_pipeline.config import DEFAULT_DUMMY_DATA_CONFIG, DEFAULT_DUMMY_DATA_PATH
+from ppmi_pipeline.logging_config import configure_logging
 
 LOGGER = logging.getLogger("ppmi_pipeline.tests.generate_dummy_data")
 RANDOM_SEED = DEFAULT_DUMMY_DATA_CONFIG["random_seed"]

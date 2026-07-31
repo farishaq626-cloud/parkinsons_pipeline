@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from modeling import PrognosticModel
+from ppmi_pipeline.modeling import PrognosticModel
 
 
 class PrognosticModelTests(unittest.TestCase):

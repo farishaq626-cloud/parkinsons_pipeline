@@ -11,6 +11,6 @@ identifiers:
   - type: doi
     value: "10.5281/zenodo.21225810"
     description: "Concept DOI for the project archive"
-version: "2.1.7"
-date-released: "2026-07-27"
+version: "2.1.8"
+date-released: "2026-07-31"
 license: MIT

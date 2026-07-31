@@ -6,3 +6,4 @@ matplotlib==3.11.0
 seaborn==0.13.2
 qrcode[pil]==8.2
 pillow==12.3.0
+PyYAML==6.0.3

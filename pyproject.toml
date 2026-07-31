@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ppmi-pipeline"
-version = "2.1.7"
+version = "2.1.8"
 description = "Auditable fixed-horizon data-engineering and validation framework for longitudinal PPMI data."
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.12,<3.15"
@@ -37,6 +37,7 @@ dependencies = [
   "seaborn==0.13.2",
   "qrcode[pil]==8.2",
   "pillow==12.3.0",
+  "PyYAML==6.0.3",
 ]
 
 [project.optional-dependencies]
@@ -52,26 +53,18 @@ Issues = "https://github.com/farishaq626-cloud/parkinsons_pipeline/issues"
 
 [project.scripts]
 ppmi-pipeline = "ppmi_pipeline.cli:main"
+ppmi-paper2 = "ppmi_pipeline.paper2_cli:main"
+ppmi-paper2-synthetic = "ppmi_pipeline.synthetic_generator:main"
+ppmi-paper2-batch = "ppmi_pipeline.run_all_experiments:main"
+ppmi-paper2-plot = "ppmi_pipeline.plot_specification:main"
+ppmi-paper2-audit = "ppmi_pipeline.audit_paper2_outputs:main"
 
 [tool.setuptools]
-py-modules = [
-  "adapter",
-  "config",
-  "data_utils",
-  "etl",
-  "exceptions",
-  "logging_config",
-  "main",
-  "modeling",
-  "validation",
-  "visualization",
-]
 include-package-data = true
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["ppmi_pipeline*", "poster_assets*"]
-exclude = ["legacy*", "tests*", "manuscript*"]
+where = ["src"]
+include = ["ppmi_pipeline*"]
 
 [tool.setuptools.package-data]
 ppmi_pipeline = ["sample_data/*.csv"]
@@ -84,7 +77,7 @@ extend-exclude = [
   "build",
   "legacy",
   "manuscript",
-  "poster_build",
+  "poster/build",
   "results",
 ]
 

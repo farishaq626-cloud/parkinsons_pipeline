@@ -1,0 +1,13 @@
+extends: primary_analysis.yaml
+
+# Real-data snapshot and schema settings are inherited from base.yaml.
+
+task_grid:
+  horizons_months: [12, 24, 36]
+  tolerance_days: [60, 90, 120]
+  outcome_types: [continuous, binary]
+  progression_threshold: 5.0
+  feature_sets:
+    - [demographics_disease_history, baseline_motor, cognition_neuropsychology,
+       olfaction_sleep_autonomic, biofluid_biomarkers, imaging_dat_spect,
+       genetic_variables]

@@ -4,8 +4,8 @@ import unittest
 
 import pandas as pd
 
-from adapter import harmonize_schema
-from exceptions import MissingColumnError
+from ppmi_pipeline.adapter import harmonize_schema
+from ppmi_pipeline.exceptions import MissingColumnError
 
 
 class SchemaAdapterTests(unittest.TestCase):
